@@ -10,22 +10,36 @@ def parseHex(string):
 def getEmojiCodePoints():
 	# emoji-data.txt is available at http://www.unicode.org/Public/emoji/
 	emojiData = getFile('emoji-data.txt')
-	emojiCodePoints = []
+	emojiCodePoints = set()
 
 	with open(emojiData) as f:
 		for line in f:
 			if line.strip() and line[0] is not '#':
 				codePoints = line.split()[0].split('..')
 				if len(codePoints) == 1:
-					emojiCodePoints.append(parseHex(codePoints[0]))
+					emojiCodePoints.add(parseHex(codePoints[0]))
 				elif len(codePoints) == 2:
 					[start, end] = codePoints
 					for point in range(parseHex(start), parseHex(end)+1):
-						emojiCodePoints.append(point)
+						emojiCodePoints.add(point)
 				else:
 					print('File format error. Line was ' + line)
-	return emojiCodePoints
-			
+	return list(emojiCodePoints)
+
+def getRangesFromPoints(points):
+	ranges = []
+	currentRange = []
+	for i, point in enumerate(points):
+		currentRange.append(point)
+		#print(currentRange)
+		if i >= len(points)-1 or points[i+1] - point > 1: # if next point is last, or not consecutive
+			if len(currentRange) > 1:
+				ranges.append([currentRange[0], currentRange[-1]])
+			else:
+				ranges.append(currentRange[0])
+			currentRange = []
+	return ranges
+
 
 def extractNames(emojiCodePoints):
 	# UnicodeData.txt is available at http://unicode.org/Public/UNIDATA/
@@ -33,18 +47,24 @@ def extractNames(emojiCodePoints):
 	names = {}
 
 	with open(unicodeData) as f:
+		index = 0
 		for line in f:
 			fields = line.split(';')
-			emojiCodePoint = emojiCodePoints[0]
+			emojiCodePoint = emojiCodePoints[index]
 			codePoint = parseHex(fields[0])
 			if codePoint == emojiCodePoint:
 				names[codePoint] = fields[1]
-				emojiCodePoints.pop(0)
-			if len(emojiCodePoints) <= 0: # found all emojis
+				index += 1
+			if index >= len(emojiCodePoints): # found all emojis
 				break
 	return names
 
 
-namesDict = extractNames(getEmojiCodePoints())
+codePoints = getEmojiCodePoints()
+codePoints.sort()
+
+ranges = getRangesFromPoints(codePoints)
+namesDict = extractNames(codePoints)
+
 with open(getFile('emojiNames.json'), 'w') as f:
-	json.dump(namesDict, f)
+	json.dump({'ranges': ranges, 'names': namesDict}, f)
