@@ -68,6 +68,6 @@ codePoints.sort()
 ranges = getRangesFromPoints(codePoints)
 namesDict = extractNames(codePoints)
 
-with open(getFile('names-dict.js'), 'w') as f:
+with open(getFile('addon/names-dict.js'), 'w') as f:
 	jsonString = json.dumps({'ranges': ranges, 'names': namesDict})
 	f.write('const namesDictionary = ' + jsonString + ';')
