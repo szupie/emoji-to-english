@@ -15,15 +15,17 @@ def getEmojiCodePoints():
 	with open(emojiData) as f:
 		for line in f:
 			if line.strip() and line[0] is not '#':
-				codePoints = line.split()[0].split('..')
-				if len(codePoints) == 1:
-					emojiCodePoints.add(parseHex(codePoints[0]))
-				elif len(codePoints) == 2:
-					[start, end] = codePoints
-					for point in range(parseHex(start), parseHex(end)+1):
-						emojiCodePoints.add(point)
-				else:
-					print('File format error. Line was ' + line)
+				noComment = line.split('#')[0].strip()
+				if 'Emoji_Presentation' in noComment.split(';')[1]:
+					codePoints = noComment.split()[0].split('..')
+					if len(codePoints) == 1:
+						emojiCodePoints.add(parseHex(codePoints[0]))
+					elif len(codePoints) == 2:
+						[start, end] = codePoints
+						for point in range(parseHex(start), parseHex(end)+1):
+							emojiCodePoints.add(point)
+					else:
+						print('File format error. Line was ' + line)
 	return list(emojiCodePoints)
 
 def getRangesFromPoints(points):
@@ -66,5 +68,6 @@ codePoints.sort()
 ranges = getRangesFromPoints(codePoints)
 namesDict = extractNames(codePoints)
 
-with open(getFile('emojiNames.json'), 'w') as f:
-	json.dump({'ranges': ranges, 'names': namesDict}, f)
+with open(getFile('names-dict.js'), 'w') as f:
+	jsonString = json.dumps({'ranges': ranges, 'names': namesDict})
+	f.write('const namesDictionary = ' + jsonString + ';')
