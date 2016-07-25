@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="settings.css">
+	</head>
+
+	<body>
+
+		<section id="settings">
+			<h2>Settings</h2>
+			<form>
+				<section>
+					<p>Show emoji</p>
+					<section class="options">
+						<label>
+							<input type="radio" value="true" data-is-boolean name="showEmoji">
+							Yes
+						</label>
+						<label>
+							<input type="radio" value="false" data-is-boolean name="showEmoji">
+							No
+						</label>
+					</section>
+				</section>
+				<section>
+					<p>Wrap translation with:</p>
+					<section class="options">
+						<label>
+							<input type="radio" value="parentheses" name="wrapper">
+							()’s
+						</label>
+						<label>
+							<input type="radio" value="squarebrackets" name="wrapper">
+							[]’s
+						</label>
+						<label>
+							<input type="radio" value="colons" name="wrapper">
+							:’s
+						</label>
+						<label>
+							<input type="radio" value="nothing" name="wrapper">
+							<em>Nothing</em>
+						</label>
+					</section>
+				</section>
+				<section>
+					<p>Ignore flags</p>
+					<section class="options">
+						<label>
+							<input type="radio" value="true" data-is-boolean name="ignoreFlags">
+							Yes
+						</label>
+						<label>
+							<input type="radio" value="false" data-is-boolean name="ignoreFlags">
+							No
+						</label>
+					</section>
+				</section>
+			</form>
+		</section>
+
+		<section id="preview">
+			<h2>Preview</h2>
+			<section id="original">
+				<h3>Before</h3>
+				<samp>Oh dear 😓... Yes 🙆, 🇬🇧 wins!</samp>
+			</section>
+			<section id="translated">
+				<h3>After</h3>
+				<samp></samp>
+			</section>
+		</section>
+
+		<p id="changedMessage">Settings saved. Changes will apply to a page the next time it is loaded.</p>
+
+		<script src="names-dict.js"></script>
+		<script src="emoji-replacer.js"></script>
+		<script src="settings.js"></script>
+
+	</body>
+
+</html>

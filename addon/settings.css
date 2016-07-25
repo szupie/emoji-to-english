@@ -1,0 +1,78 @@
+body {
+	font-family: sans-serif;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+h2 {
+	margin-top: 0;
+	font-size: 1.5em;
+	font-weight: 400;
+}
+
+#settings {
+	margin-right: 4em;
+	flex: 1 0 auto;
+}
+#settings form {
+	display: table;
+}
+#settings form > section {
+	display: table-row;
+	margin-top: 1em;
+}
+#settings form > section > * {
+	display: table-cell;
+	padding: 0.75em 0;
+}
+#settings form > section > :first-child {
+	padding-right: 2em;
+}
+#settings section.options > label {
+	display: block;
+}
+#settings section.options > label + label {
+	margin-top: 1em;
+}
+
+#preview {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 50%;
+	background-color: #fff;
+	border: 1px dotted rgba(0, 0, 0, 0.25);
+	padding: 1em;
+}
+#preview h3 {
+	margin: 0;
+	margin-bottom: 0.25em;
+	font-weight: 200;
+	font-style: italic;
+}
+#preview section {
+	padding: 1em 0;
+}
+#preview section:first-of-type {
+	padding-top: 0;
+}
+#original {
+	border-bottom: 1px dashed rgba(0, 0, 0, 0.25);
+}
+
+#changedMessage {
+	margin-top: 2em;
+	padding: 0.5em;
+	margin-left: -0.5em;
+	font-style: italic;
+	color: rgba(0, 0, 0, 0);
+	transition: color 500ms ease-in-out, background-color 500ms ease-in-out;
+}
+#settings.changed ~ #changedMessage {
+	color: rgba(0, 0, 0, 1);
+	background-color: rgba(250, 250, 20, 0.25);
+}
+#settings.changed:not(.fresh) ~ #changedMessage {
+	color: rgba(0, 0, 0, 0.25);
+	background-color: rgba(250, 250, 20, 0);
+	transition: color 3s ease-in 1s, background-color 1s ease-in-out;
+}

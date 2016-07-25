@@ -6,7 +6,16 @@
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
-			"js": ["names-dict.js", "emoji-replacer.js"]
+			"js": ["names-dict.js", "emoji-replacer.js", "dom-manipulator.js"]
 		}
-	]
+	],
+	"applications": {
+		"gecko": {
+			"id": "emojisToEnglish@szupie"
+		}
+	},
+	"options_ui": {
+		"page": "settings.html"
+	},
+	"permissions": ["storage"]
 }
