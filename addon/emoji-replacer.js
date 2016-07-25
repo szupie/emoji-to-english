@@ -10,6 +10,8 @@ const emojiReplacer = (function(){
 
 	settings.showEmoji = true;
 	settings.wrapper = 'parentheses';
+	settings.wrapStart = '';
+	settings.wrapEnd = '';
 	settings.ignoreFlags = true;
 
 	const pattern = buildPattern();
@@ -48,7 +50,11 @@ const emojiReplacer = (function(){
 			translation += match;
 		}
 		if (settings.wrapper !== 'nothing') {
-			translation += wrappers[settings.wrapper].join(name);
+			if (settings.wrapper === 'custom') {
+				translation += [settings.wrapStart, settings.wrapEnd].join(name);
+			} else {
+				translation += wrappers[settings.wrapper].join(name);
+			}
 		} else {
 			translation += name;
 		}

@@ -35,10 +35,14 @@ h2 {
 	margin-top: 1em;
 }
 
+#settings input[value='custom'] ~ input {
+	width: 3em;
+}
+
 #preview {
 	display: flex;
 	flex-direction: column;
-	flex: 1 1 50%;
+	flex: 1 1 15em;
 	background-color: #fff;
 	border: 1px dotted rgba(0, 0, 0, 0.25);
 	padding: 1em;
