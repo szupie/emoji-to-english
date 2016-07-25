@@ -21,9 +21,15 @@ function saveSetting(e) {
 
 function restoreSettings() {
 	chrome.storage.local.get(null, (res) => {
-		for (let setting in res) {
-			document.forms[0].elements[setting].value = res[setting];
-			emojiReplacer.set(setting, res[setting]);
+		if (Object.keys(res).length <= 0) {
+			for (let setting in emojiReplacer.settings) {
+				document.forms[0].elements[setting].value = emojiReplacer.settings[setting];
+			}
+		} else {
+			for (let setting in res) {
+				document.forms[0].elements[setting].value = res[setting];
+				emojiReplacer.set(setting, res[setting]);
+			}
 		}
 		displayPreview();
 	});
