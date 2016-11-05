@@ -47,19 +47,35 @@ const emojiReplacer = (function(){
 			return match;
 		}
 		if (settings.showEmoji) {
-			translation += match;
+                        if (settings.nameInMouseover) {
+                            translation += "<span title=\"";
+                            translation += nameWithDelimiter(name);
+                            translation += "\">";
+                            translation += match;
+                            translation += "</span>";
+                        } else {
+                            translation += match;
+                        }
 		}
-		if (settings.wrapper !== 'nothing') {
-			if (settings.wrapper === 'custom') {
-				translation += [settings.wrapStart, settings.wrapEnd].join(name);
-			} else {
-				translation += wrappers[settings.wrapper].join(name);
-			}
-		} else {
-			translation += name;
-		}
+		if (settings.nameAfterEmoji) {
+                    translation += nameWithDelimiter(name);
+                }
 		return translation;
 	}
+	
+	function nameWithDelimiter(namegoeshere) {
+                let result = '';
+                if (settings.wrapper !== 'nothing') {
+                        if (settings.wrapper === 'custom') {
+                                result += [settings.wrapStart, settings.wrapEnd].join(namegoeshere);
+                        } else {
+                                result += wrappers[settings.wrapper].join(namegoeshere);
+                        }
+                } else {
+                        result += namegoeshere;
+                }
+                return result;
+        }
 
 	function toPaddedHex(number) {
 		return (`000000${number.toString(16)}`).slice(-6);

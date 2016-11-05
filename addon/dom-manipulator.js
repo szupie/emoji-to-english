@@ -4,8 +4,5 @@ chrome.storage.local.get(null, (res) => {
 	for (let setting in res) {
 		emojiReplacer.set(setting, res[setting]);
 	}
-	while (treeWalker.nextNode()) {
-		const original = treeWalker.currentNode.nodeValue;
-		treeWalker.currentNode.nodeValue = original.replace(emojiReplacer.pattern, emojiReplacer.replaceMatch);
-	}
+	document.body.innerHTML = document.body.innerHTML.replace(emojiReplacer.pattern, emojiReplacer.replaceMatch);
 });
