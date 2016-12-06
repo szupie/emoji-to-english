@@ -15,12 +15,13 @@ const emojiReplacer = (function(){
 	settings.ignoreFlags = true;
 
 	const pattern = buildPattern();
+	const template = document.createElement('template');
 
 	return {
 		settings,
 		set,
-		pattern: pattern,
-		replaceMatch: replaceMatch
+		pattern,
+		translateTextNode: buildTranslatedNodes
 	}
 
 	function buildPattern() {
@@ -59,6 +60,46 @@ const emojiReplacer = (function(){
 			translation += name;
 		}
 		return translation;
+	}
+
+	// returns list of translated emojis and list of surrounding texts
+	// if no emojis are found, returns false
+	function getReplacedParts(original) {
+		if (pattern.test(original)) {
+			const splits = original.split(pattern);
+			const translations = original.match(pattern).map(string => replaceMatch(string));
+			return {splits, translations};
+		}
+		return false;
+	}
+
+	function buildTranslatedNodes(originalNode) {
+		const originalText = originalNode.nodeValue;
+		const parent = originalNode.parentElement;
+		
+		// do not replace script contents
+		if (!parent || parent.tagName.toLowerCase() !== 'script') {
+
+			// splice together translations and surrounding text
+			const {splits, translations} = getReplacedParts(originalText);
+			if (splits) {
+				const parts = splits.map(string => document.createTextNode(string));
+				parts.forEach((node, index) => {
+					// insert nodes for non-matched/surrounding text from original
+					parent.insertBefore(node, originalNode);
+
+					// insert nodes for translated matches
+					if (index < parts.length-1) {
+						// use `innerHTML` to support formatted html code
+						template.innerHTML = translations[index];
+						parent.insertBefore(template.content, originalNode);
+					}
+				});
+				// clear original text node
+				originalNode.nodeValue = "";
+			}
+
+		}
 	}
 
 	function toPaddedHex(number) {

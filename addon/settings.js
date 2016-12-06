@@ -27,8 +27,10 @@ function restoreSettings() {
 			}
 		} else {
 			for (let setting in res) {
-				document.forms[0].elements[setting].value = res[setting];
-				emojiReplacer.set(setting, res[setting]);
+				if (document.forms[0].elements[setting]) {
+					document.forms[0].elements[setting].value = res[setting];
+					emojiReplacer.set(setting, res[setting]);
+				}
 			}
 		}
 		displayPreview();
@@ -36,10 +38,10 @@ function restoreSettings() {
 }
 
 function displayPreview() {
-	const original = document.querySelector('#original samp').textContent;
 	const translatedNode = document.querySelector('#translated samp');
+	translatedNode.textContent = document.querySelector('#original samp').textContent;
 
-	translatedNode.textContent = original.replace(emojiReplacer.pattern, emojiReplacer.replaceMatch);
+	emojiReplacer.translateTextNode(translatedNode.childNodes[0]);
 }
 
 document.addEventListener("DOMContentLoaded", restoreSettings);

@@ -1,11 +1,14 @@
-const treeWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+const treeWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); // filter to only text nodes
 
 chrome.storage.local.get(null, (res) => {
+	// retrieve settings
 	for (let setting in res) {
 		emojiReplacer.set(setting, res[setting]);
 	}
+
+	// perform replacement on each text node in document
 	while (treeWalker.nextNode()) {
-		const original = treeWalker.currentNode.nodeValue;
-		treeWalker.currentNode.nodeValue = original.replace(emojiReplacer.pattern, emojiReplacer.replaceMatch);
+		const originalNode = treeWalker.currentNode;
+		emojiReplacer.translateTextNode(originalNode);
 	}
 });
