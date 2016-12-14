@@ -40,9 +40,13 @@ const emojiReplacer = (function(){
 		return new RegExp(pattern.join('|'), 'ug');
 	}
 
-	function getReplacedEmoji(emoji) {
+	function getReplacedEmoji(emoji, translation) {
 		if (settings.showEmoji) {
-			return emoji;
+			if (settings.nameInMouseover) {
+				return `<span title="${translation}">${emoji}</span>`
+			} else {
+				return emoji;
+			}
 		}
 		return '';
 	}
@@ -70,28 +74,33 @@ const emojiReplacer = (function(){
 			const nonemojis = original.split(pattern);
 
 			// pad end of emojis and translations because split length should always be emojis length + 1
-			const replaceEmojis = emojis.map(getReplacedEmoji).concat('');
 			const translations = emojis.map(emoji => getTranslationForEmoji(emoji)).concat('');
+			const replaceEmojis = emojis.map((emoji, index) => getReplacedEmoji(emoji, translations[index])).concat('');
 			
 			if (nonemojis.length !== replaceEmojis.length || replaceEmojis.length !== translations.length) {
 				console.warn('Programmer error: assumption of split length is incorrect.', nonemojis, emojis, translations);
 			}
 
 			return nonemojis.map((nonemoji, index) => {
-				// treat regional indicators as nonemojis depending on settings
+				const replacedParts = {
+					nonemoji: nonemoji,
+					emoji: replaceEmojis[index],
+					translation: translations[index]
+				};
+
+				// treat regional indicators as nonemojis
 				if (settings.ignoreFlags && /[\u{1F1E6}-\u{1F1FF}]/u.test(emojis[index])) {
-					return {
-						nonemoji: nonemoji.concat(emojis[index]),
-						emoji: '',
-						translation: ''
-					}
-				} else {
-					return {
-						nonemoji: nonemoji,
-						emoji: replaceEmojis[index],
-						translation: translations[index]
-					}
+					replacedParts['nonemoji'] = nonemoji.concat(emojis[index]);
+					replacedParts['emoji'] = '';
+					replacedParts['translation'] = '';
 				}
+
+				// suppress translation after emoji
+				if (!settings.nameAfterEmoji) {
+					replacedParts['translation'] = '';
+				}
+
+				return replacedParts;
 			});
 		}
 		return false;
