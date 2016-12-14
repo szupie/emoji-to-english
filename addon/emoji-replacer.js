@@ -8,7 +8,8 @@ const emojiReplacer = (function(){
 
 	const settings = {};
 
-	settings.showEmoji = true;
+	settings.emojiDisplay = 'emoji';
+	settings.showTranslation = true;
 	settings.wrapper = 'parentheses';
 	settings.wrapStart = '';
 	settings.wrapEnd = '';
@@ -41,12 +42,14 @@ const emojiReplacer = (function(){
 	}
 
 	function getReplacedEmoji(emoji, translation) {
-		let replacement = '';
-		if (settings.showEmoji) {
-			replacement = emoji;
-			if (settings.nameInMouseover) {
-				replacement = `<span title="${translation}">${replacement}</span>`
-			}
+		let replacement = emoji;
+		switch (settings.emojiDisplay) {
+			case 'hide':
+				replacement = '';
+				break;
+			case 'tooltip':
+				replacement = `<span title="${translation}">${emoji}</span>`;
+				break;
 		}
 		return replacement;
 	}
@@ -55,14 +58,14 @@ const emojiReplacer = (function(){
 		const codePoint = emoji.codePointAt();
 		const name = namesDictionary['names'][codePoint];
 
-		let wrappers = ['', ''];
+		let userWrappers = ['', ''];
 		if (settings.wrapper !== 'nothing') {
-			wrappers = wrappers[settings.wrapper];
+			userWrappers = wrappers[settings.wrapper];
 			if (settings.wrapper === 'custom') {
-				wrappers = [settings.wrapStart, settings.wrapEnd];
+				userWrappers = [settings.wrapStart, settings.wrapEnd];
 			}
 		}
-		return `${wrappers[0]}${name}${wrappers[1]}`;
+		return `${userWrappers[0]}${name}${userWrappers[1]}`;
 	}
 
 	// returns list of translated emojis and list of surrounding texts
@@ -95,7 +98,7 @@ const emojiReplacer = (function(){
 				}
 
 				// suppress translation after emoji
-				if (!settings.nameAfterEmoji) {
+				if (!settings.showTranslation) {
 					replacedParts['translation'] = '';
 				}
 

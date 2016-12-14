@@ -12,40 +12,31 @@
 			<h2>Settings</h2>
 			<form>
 				<section>
-					<p>Show emoji</p>
+					<p>Emoji display</p>
 					<section class="options">
 						<label>
-							<input type="radio" value="true" data-is-boolean name="showEmoji">
-							Yes
+							<input type="radio" value="emoji" name="emojiDisplay">
+							Show emoji
 						</label>
 						<label>
-							<input type="radio" value="false" data-is-boolean name="showEmoji">
-							No
+							<input type="radio" value="tooltip" name="emojiDisplay">
+							Show emoji with mouseover tooltip
+						</label>
+						<label>
+							<input type="radio" value="hide" name="emojiDisplay">
+							Hide emoji
 						</label>
 					</section>
 				</section>
 				<section>
-					<p>Show name in mouseover</p>
+					<p>Show translation after emoji</p>
 					<section class="options">
 						<label>
-							<input type="radio" value="true" data-is-boolean name="nameInMouseover">
+							<input type="radio" value="true" data-is-boolean name="showTranslation">
 							Yes
 						</label>
 						<label>
-							<input type="radio" value="false" data-is-boolean name="nameInMouseover">
-							No
-						</label>
-					</section>
-				</section>
-				<section>
-					<p>Show name after emoji</p>
-					<section class="options">
-						<label>
-							<input type="radio" value="true" data-is-boolean name="nameAfterEmoji">
-							Yes
-						</label>
-						<label>
-							<input type="radio" value="false" data-is-boolean name="nameAfterEmoji">
+							<input type="radio" value="false" data-is-boolean name="showTranslation">
 							No
 						</label>
 					</section>
