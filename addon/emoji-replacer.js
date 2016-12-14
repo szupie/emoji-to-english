@@ -40,8 +40,15 @@ const emojiReplacer = (function(){
 		return new RegExp(pattern.join('|'), 'ug');
 	}
 
-	function getTranslationForMatch(match) {
-		const codePoint = match.codePointAt();
+	function getReplacedEmoji(emoji) {
+		if (settings.showEmoji) {
+			return emoji;
+		}
+		return '';
+	}
+
+	function getTranslationForEmoji(emoji) {
+		const codePoint = emoji.codePointAt();
 		const name = namesDictionary['names'][codePoint];
 
 		let translation = name;
@@ -59,13 +66,14 @@ const emojiReplacer = (function(){
 	// if no emojis are found, returns false
 	function getReplacedParts(original) {
 		if (pattern.test(original)) {
+			const emojis = original.match(pattern);
 			const nonemojis = original.split(pattern);
-			let emojis = original.match(pattern);
-			const translations = emojis.map(string => getTranslationForMatch(string)).concat('');
-			
+
 			// pad end of emojis and translations because split length should always be emojis length + 1
-			emojis.push('');
-			if (nonemojis.length !== emojis.length || emojis.length !== translations.length) {
+			const replaceEmojis = emojis.map(getReplacedEmoji).concat('');
+			const translations = emojis.map(emoji => getTranslationForEmoji(emoji)).concat('');
+			
+			if (nonemojis.length !== replaceEmojis.length || replaceEmojis.length !== translations.length) {
 				console.warn('Programmer error: assumption of split length is incorrect.', nonemojis, emojis, translations);
 			}
 
@@ -80,7 +88,7 @@ const emojiReplacer = (function(){
 				} else {
 					return {
 						nonemoji: nonemoji,
-						emoji: emojis[index],
+						emoji: replaceEmojis[index],
 						translation: translations[index]
 					}
 				}
@@ -92,7 +100,7 @@ const emojiReplacer = (function(){
 	function buildTranslatedNodes(originalNode) {
 		const originalText = originalNode.nodeValue;
 		const parent = originalNode.parentElement;
-		const zeroWidthJoiner = '\u200D';
+		const ZEROWIDTHJOINER = '\u200D';
 		
 		// do not replace script contents
 		if (!parent || parent.tagName.toLowerCase() !== 'script') {
@@ -107,15 +115,16 @@ const emojiReplacer = (function(){
 
 					// collapse consecutive emoji matches in array
 					while (++index < replacementDictionary.length) {
+						// look ahead for empty sections in the original splitted by emojis
 						const nextSection = replacementDictionary[index];
 
 						const nonemojiIsEmpty = nextSection['nonemoji'] === '';
-						const nonemojiIsZeroWidthJoiner = nextSection['nonemoji'] === zeroWidthJoiner;
+						const nonemojiIsZeroWidthJoiner = nextSection['nonemoji'] === ZEROWIDTHJOINER;
 
 						if (nonemojiIsEmpty || nonemojiIsZeroWidthJoiner) {
 							// add ZERO WIDTH JOINER back into emoji to display joined emojis properly
 							if (nonemojiIsZeroWidthJoiner) {
-								emoji = emoji.concat(zeroWidthJoiner);
+								emoji = emoji.concat(ZEROWIDTHJOINER);
 							}
 
 							nonemoji = nonemoji.concat(nextSection['nonemoji']);
@@ -132,13 +141,8 @@ const emojiReplacer = (function(){
 					parent.insertBefore(node, originalNode);
 
 					// insert nodes for translated emojis
-
 					// use `innerHTML` to support formatted html code
-					if (settings.showEmoji) {
-						template.innerHTML = `${emoji}${translation}`;
-					} else {
-						template.innerHTML = translation;
-					}
+					template.innerHTML = `${emoji}${translation}`;
 
 					parent.insertBefore(template.content, originalNode);
 				}
