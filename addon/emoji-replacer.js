@@ -48,35 +48,31 @@ const emojiReplacer = (function(){
 			return match;
 		}
 		if (settings.showEmoji) {
-                        if (settings.nameInMouseover) {
-                            translation += "<span title=\"";
-                            translation += nameWithDelimiter(name);
-                            translation += "\">";
-                            translation += match;
-                            translation += "</span>";
-                        } else {
-                            translation += match;
-                        }
+			if (settings.nameInMouseover) {
+				translation = `<span title="${nameWithDelimiter(name)}">${match}</span>`
+			} else {
+				translation = match;
+			}
 		}
 		if (settings.nameAfterEmoji) {
-                    translation += nameWithDelimiter(name);
-                }
+			translation += nameWithDelimiter(name);
+		}
 		return translation;
 	}
 	
 	function nameWithDelimiter(namegoeshere) {
-                let result = '';
-                if (settings.wrapper !== 'nothing') {
-                        if (settings.wrapper === 'custom') {
-                                result += [settings.wrapStart, settings.wrapEnd].join(namegoeshere);
-                        } else {
-                                result += wrappers[settings.wrapper].join(namegoeshere);
-                        }
-                } else {
-                        result += namegoeshere;
-                }
-                return result;
-        }
+		let result = '';
+		if (settings.wrapper !== 'nothing') {
+			if (settings.wrapper === 'custom') {
+				result += [settings.wrapStart, settings.wrapEnd].join(namegoeshere);
+			} else {
+				result += wrappers[settings.wrapper].join(namegoeshere);
+			}
+		} else {
+			result += namegoeshere;
+		}
+		return result;
+	}
 
 	// returns list of translated emojis and list of surrounding texts
 	// if no emojis are found, returns false
