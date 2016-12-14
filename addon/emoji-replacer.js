@@ -40,24 +40,17 @@ const emojiReplacer = (function(){
 		return new RegExp(pattern.join('|'), 'ug');
 	}
 
-	function replaceMatch(match) {
+	function getTranslationForMatch(match) {
 		const codePoint = match.codePointAt();
 		const name = namesDictionary['names'][codePoint];
-		let translation = '';
-		if (settings.ignoreFlags && /[\u{1F1E6}-\u{1F1FF}]/u.test(match)) {
-			return match;
-		}
-		if (settings.showEmoji) {
-			translation += match;
-		}
+
+		let translation = name;
 		if (settings.wrapper !== 'nothing') {
 			if (settings.wrapper === 'custom') {
-				translation += [settings.wrapStart, settings.wrapEnd].join(name);
+				translation = [settings.wrapStart, settings.wrapEnd].join(translation);
 			} else {
-				translation += wrappers[settings.wrapper].join(name);
+				translation = wrappers[settings.wrapper].join(translation);
 			}
-		} else {
-			translation += name;
 		}
 		return translation;
 	}
@@ -66,9 +59,32 @@ const emojiReplacer = (function(){
 	// if no emojis are found, returns false
 	function getReplacedParts(original) {
 		if (pattern.test(original)) {
-			const splits = original.split(pattern);
-			const translations = original.match(pattern).map(string => replaceMatch(string));
-			return {splits, translations};
+			const nonemojis = original.split(pattern);
+			let emojis = original.match(pattern);
+			const translations = emojis.map(string => getTranslationForMatch(string)).concat('');
+			
+			// pad end of emojis and translations because split length should always be emojis length + 1
+			emojis.push('');
+			if (nonemojis.length !== emojis.length || emojis.length !== translations.length) {
+				console.warn('Programmer error: assumption of split length is incorrect.', nonemojis, emojis, translations);
+			}
+
+			return nonemojis.map((nonemoji, index) => {
+				// treat regional indicators as nonemojis depending on settings
+				if (settings.ignoreFlags && /[\u{1F1E6}-\u{1F1FF}]/u.test(emojis[index])) {
+					return {
+						nonemoji: nonemoji.concat(emojis[index]),
+						emoji: '',
+						translation: ''
+					}
+				} else {
+					return {
+						nonemoji: nonemoji,
+						emoji: emojis[index],
+						translation: translations[index]
+					}
+				}
+			});
 		}
 		return false;
 	}
@@ -76,25 +92,56 @@ const emojiReplacer = (function(){
 	function buildTranslatedNodes(originalNode) {
 		const originalText = originalNode.nodeValue;
 		const parent = originalNode.parentElement;
+		const zeroWidthJoiner = '\u200D';
 		
 		// do not replace script contents
 		if (!parent || parent.tagName.toLowerCase() !== 'script') {
 
 			// splice together translations and surrounding text
-			const {splits, translations} = getReplacedParts(originalText);
-			if (splits) {
-				const parts = splits.map(string => document.createTextNode(string));
-				parts.forEach((node, index) => {
+			const replacementDictionary = getReplacedParts(originalText);
+
+			if (replacementDictionary) {
+				let index = 0;
+				while (index < replacementDictionary.length) {
+					let {nonemoji, emoji, translation} = replacementDictionary[index];
+
+					// collapse consecutive emoji matches in array
+					while (++index < replacementDictionary.length) {
+						const nextSection = replacementDictionary[index];
+
+						const nonemojiIsEmpty = nextSection['nonemoji'] === '';
+						const nonemojiIsZeroWidthJoiner = nextSection['nonemoji'] === zeroWidthJoiner;
+
+						if (nonemojiIsEmpty || nonemojiIsZeroWidthJoiner) {
+							// add ZERO WIDTH JOINER back into emoji to display joined emojis properly
+							if (nonemojiIsZeroWidthJoiner) {
+								emoji = emoji.concat(zeroWidthJoiner);
+							}
+
+							nonemoji = nonemoji.concat(nextSection['nonemoji']);
+							emoji = emoji.concat(nextSection['emoji']);
+							translation = translation.concat(nextSection['translation']);
+
+						} else {
+							break;
+						}
+					}
+
 					// insert nodes for non-matched/surrounding text from original
+					const node = document.createTextNode(nonemoji);
 					parent.insertBefore(node, originalNode);
 
-					// insert nodes for translated matches
-					if (index < parts.length-1) {
-						// use `innerHTML` to support formatted html code
-						template.innerHTML = translations[index];
-						parent.insertBefore(template.content, originalNode);
+					// insert nodes for translated emojis
+
+					// use `innerHTML` to support formatted html code
+					if (settings.showEmoji) {
+						template.innerHTML = `${emoji}${translation}`;
+					} else {
+						template.innerHTML = translation;
 					}
-				});
+
+					parent.insertBefore(template.content, originalNode);
+				}
 				// clear original text node
 				originalNode.nodeValue = "";
 			}
