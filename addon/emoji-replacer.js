@@ -41,29 +41,28 @@ const emojiReplacer = (function(){
 	}
 
 	function getReplacedEmoji(emoji, translation) {
+		let replacement = '';
 		if (settings.showEmoji) {
+			replacement = emoji;
 			if (settings.nameInMouseover) {
-				return `<span title="${translation}">${emoji}</span>`
-			} else {
-				return emoji;
+				replacement = `<span title="${translation}">${replacement}</span>`
 			}
 		}
-		return '';
+		return replacement;
 	}
 
 	function getTranslationForEmoji(emoji) {
 		const codePoint = emoji.codePointAt();
 		const name = namesDictionary['names'][codePoint];
 
-		let translation = name;
+		let wrappers = ['', ''];
 		if (settings.wrapper !== 'nothing') {
+			wrappers = wrappers[settings.wrapper];
 			if (settings.wrapper === 'custom') {
-				translation = [settings.wrapStart, settings.wrapEnd].join(translation);
-			} else {
-				translation = wrappers[settings.wrapper].join(translation);
+				wrappers = [settings.wrapStart, settings.wrapEnd];
 			}
 		}
-		return translation;
+		return `${wrappers[0]}${name}${wrappers[1]}`;
 	}
 
 	// returns list of translated emojis and list of surrounding texts
