@@ -17,9 +17,9 @@ This add-on is available for
 #### Building Unicode names dictionary
 The dictionary for the Unicode names is not included in this repository, but can easily be built using the latest Unicode data:
 
-1. Download desired version of `emoji-data.txt` from http://www.unicode.org/Public/emoji/
-2. Download `UnicodeData.txt` from http://unicode.org/Public/UNIDATA/
-3. With the above data files in the same folder as `namesExtractor.py`, run `python namesExtractor.py` in the terminal
+1. Download desired version of `emoji-test.txt` from http://www.unicode.org/Public/emoji/
+2. Move `emoji-test.txt` to the same directory as `namesExtractor.py`
+3. Run `python namesExtractor.py` in a terminal
 
 `names-dict.js` will be created in `./addon`.
 
