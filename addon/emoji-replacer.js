@@ -60,12 +60,35 @@ const emojiReplacer = (function(){
 		}
 	}
 
+	function generateLocalisationWithModifier(sequence) {
+		const modifierPattern = /[\u{1F3FB}-\u{1F3FF}]/u;
+		const modifierIndex = sequence.search(modifierPattern);
+
+		if (modifierIndex >= 0) {
+			const base = sequence.replace(modifierPattern, '');
+			const modifier = modifierPattern.exec(sequence)[0];
+
+			const translatedBase = getAndVerifyMessage(trimVS(base));
+			const translatedModifier = getAndVerifyMessage(modifier);
+
+			if (!isUndefined(translatedBase) &&
+				!isUndefined(translatedModifier)) {
+				return `${translatedBase}: ${translatedModifier}`;
+			}
+		}
+	}
+
 	function getLocalisedNameForEmoji(emoji) {
 		let translation = getAndVerifyMessage(emoji);
 
 		if (isUndefined(translation)) {
 			// try trimming variation selectors
 			translation = getAndVerifyMessage(trimVS(emoji));
+		}
+
+		if (isUndefined(translation)) {
+			// try translating modifier and base separately
+			translation = generateLocalisationWithModifier(trimVS(emoji));
 		}
 
 		if (isUndefined(translation)) {
