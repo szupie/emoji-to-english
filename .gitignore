@@ -1,6 +1,5 @@
 .DS_Store
 UnicodeData.txt
-emoji-data.txt
+emoji-test.txt
 names-dict.js
 _locales
-

@@ -21,24 +21,18 @@ const emojiReplacer = (function(){
 	return {
 		settings,
 		set,
-		pattern,
 		translateTextNode: buildTranslatedNodes
 	}
 
 	function buildPattern() {
-		const pattern = [];
-
-		namesDictionary['ranges'].forEach(range => {
-			if (typeof range === 'number') {
-				const paddedCodePoint = toPaddedHex(range);
-				pattern.push(wrapMatch(escapeUnicode(paddedCodePoint)));
-			} else if (Array.isArray(range)) {
-				const escapedRange = range.map(value => escapeUnicode(toPaddedHex(value)));
-				pattern.push(wrapMatch(`[${escapedRange[0]}-${escapedRange[1]}]`))
-			}
+		const emojis = Object.keys(namesDictionary);
+		// sort by longest first to grep longest match
+		emojis.sort((a,b) => {
+			return b.length - a.length;
 		});
 
-		return new RegExp(pattern.join('|'), 'ug');
+		const escapedEmojis = emojis.map(emoji => escapeForRegex(emoji));
+		return new RegExp(escapedEmojis.join('|'), 'ug');
 	}
 
 	function getReplacedEmoji(emoji, translation) {
@@ -55,8 +49,7 @@ const emojiReplacer = (function(){
 	}
 
 	function getTranslationForEmoji(emoji) {
-		const codePoint = emoji.codePointAt();
-		const name = namesDictionary['names'][codePoint];
+		const name = namesDictionary[emoji];
 
 		let userWrappers = ['', ''];
 		if (settings.wrapper !== 'nothing') {
@@ -164,16 +157,8 @@ const emojiReplacer = (function(){
 		}
 	}
 
-	function toPaddedHex(number) {
-		return (`000000${number.toString(16)}`).slice(-6);
-	}
-
-	function wrapMatch(inside) {
-		return `(?:${inside})`;
-	}
-
-	function escapeUnicode(codePoint) {
-		return `\\u{${codePoint}}`;
+	function escapeForRegex(sequence) {
+		return sequence.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 	}
 
 	function set(setting, value) {
