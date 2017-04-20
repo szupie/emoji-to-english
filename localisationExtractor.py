@@ -1,3 +1,7 @@
+# Localisation files can be found at:
+# http://unicode.org/repos/cldr/tags/latest/common/annotations/
+
+import argparse
 import xml.etree.ElementTree as ET
 import os, json
 
@@ -6,35 +10,45 @@ def getFile(path):
 	return os.path.join(dir, path)
 
 
-# Localisation files can be found at:
-# http://unicode.org/repos/cldr/tags/latest/common/annotations/
+parser = argparse.ArgumentParser()
+parser.add_argument("src", help="directory containing CLDR annotations xml files")
+args = parser.parse_args()
 
-locale = "en" # change to appropriate language code
+srcDir = getFile(args.src)
+langs = []
 
-tree = ET.parse('{}.xml'.format(locale))
-annotations = tree.getroot().find('annotations')
+for filename in os.listdir(srcDir):
+	locale = os.path.splitext(filename)[0]
+	langs.append(locale)
 
-dictionary = {}
+	tree = ET.parse(os.path.join(srcDir, filename))
+	annotations = tree.getroot().find('annotations')
 
-for annotation in annotations.iter('annotation'):
-	character = annotation.get('cp')
-	typeAttr = annotation.get('type')
+	dictionary = {}
 
-	# Use keywords if no other annotations available
-	if character not in dictionary:
-		dictionary[character] = annotation.text
+	for annotation in annotations.iter('annotation'):
+		character = annotation.get('cp')
+		typeAttr = annotation.get('type')
 
-	# Use short names when available
-	if typeAttr == 'tts':
-		dictionary[character] = annotation.text
+		# Use keywords if no other annotations available
+		if character not in dictionary:
+			dictionary[character] = annotation.text
 
-filePath = getFile('./addon/_locales/{}/messages.json'.format(locale))
-os.makedirs(os.path.dirname(filePath), exist_ok=True)
+		# Use short names when available
+		if typeAttr == 'tts':
+			dictionary[character] = annotation.text
 
-formattedDictionary = {
-	character: {'message': dictionary[character]} for character in dictionary
-}
+	filePath = getFile('./addon/_locales/{}/messages.json'.format(locale))
+	os.makedirs(os.path.dirname(filePath), exist_ok=True)
 
-with open(filePath, 'w') as f:
-	jsonString = json.dumps(formattedDictionary, ensure_ascii=False, sort_keys=True)
-	f.write(jsonString)
+	formattedDictionary = {
+		character: {
+			'message': dictionary[character]
+		} for character in dictionary
+	}
+
+	with open(filePath, 'w') as f:
+		jsonString = json.dumps(formattedDictionary, ensure_ascii=False, sort_keys=True)
+		f.write(jsonString)
+
+print('{} annotation files parsed: {}'.format(len(langs), ', '.join(langs)))
