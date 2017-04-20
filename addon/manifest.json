@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Emoji to English",
-	"version": "2.0",
+	"version": "2.1",
 	"description": "Translates emojis to their Unicode names",
 	"content_scripts": [
 		{
