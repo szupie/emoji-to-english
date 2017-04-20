@@ -17,5 +17,6 @@
 	"options_ui": {
 		"page": "settings.html"
 	},
-	"permissions": ["storage"]
+	"permissions": ["storage"],
+	"default_locale": "en"
 }

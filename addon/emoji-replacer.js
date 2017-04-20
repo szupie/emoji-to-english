@@ -48,9 +48,37 @@ const emojiReplacer = (function(){
 		return replacement;
 	}
 
-	function getTranslationForEmoji(emoji) {
-		const name = namesDictionary[emoji];
+	function getAndVerifyMessage(message) {
+		try {
+			const localisation = browser.i18n.getMessage(message);
+			if (localisation.length <= 0) {
+				return;
+			}
+			return localisation;
+		} catch(e) {
+			return;
+		}
+	}
 
+	function getLocalisedNameForEmoji(emoji) {
+		let translation = getAndVerifyMessage(emoji);
+
+		if (isUndefined(translation)) {
+			// try trimming variation selectors
+			translation = getAndVerifyMessage(trimVS(emoji));
+		}
+
+		if (isUndefined(translation)) {
+			// fall back to non-localised name
+			translation = namesDictionary[emoji];
+		}
+
+		return translation;
+	}
+
+	function getTranslationForEmoji(emoji) {
+		const name = getLocalisedNameForEmoji(emoji);
+		
 		let userWrappers = ['', ''];
 		if (settings.wrapper !== 'nothing') {
 			userWrappers = wrappers[settings.wrapper];
@@ -159,6 +187,16 @@ const emojiReplacer = (function(){
 
 	function escapeForRegex(sequence) {
 		return sequence.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	}
+
+	// trim variation selectors surrounding sequence
+	function trimVS(sequence) {
+		const split = sequence.split(/^[\uFE00-\uFE0F]+|[\uFE00-\uFE0F]+$/);
+		return split.filter(sequence => sequence.length>0)[0];
+	}
+
+	function isUndefined(variable) {
+		return (typeof variable === 'undefined');
 	}
 
 	function set(setting, value) {
