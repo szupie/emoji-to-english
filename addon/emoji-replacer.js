@@ -16,7 +16,6 @@ const emojiReplacer = (function(){
 	settings.ignoreFlags = true;
 
 	const pattern = buildPattern();
-	const template = document.createElement('template');
 
 	return {
 		settings,
@@ -33,19 +32,6 @@ const emojiReplacer = (function(){
 
 		const escapedEmojis = emojis.map(emoji => escapeForRegex(emoji));
 		return new RegExp(escapedEmojis.join('|'), 'ug');
-	}
-
-	function getReplacedEmoji(emoji, translation) {
-		let replacement = emoji;
-		switch (settings.emojiDisplay) {
-			case 'hide':
-				replacement = '';
-				break;
-			case 'tooltip':
-				replacement = `<span title="${translation}">${emoji}</span>`;
-				break;
-		}
-		return replacement;
 	}
 
 	function getAndVerifyMessage(message) {
@@ -119,12 +105,23 @@ const emojiReplacer = (function(){
 			const emojis = original.match(pattern);
 			const nonemojis = original.split(pattern);
 
-			// pad end of emojis and translations because split length should always be emojis length + 1
-			const translations = emojis.map(emoji => getTranslationForEmoji(emoji)).concat('');
-			const replaceEmojis = emojis.map((emoji, index) => getReplacedEmoji(emoji, translations[index])).concat('');
+			// pad end of emojis and translations with empty array item
+			// because original text will be rebuilt in sections,
+			// each ending with (potentially empty) emoji/translations pair
+			const translations = emojis.map(
+				emoji => getTranslationForEmoji(emoji)
+			).concat('');
+			const replaceEmojis = emojis.map(emoji => emoji).concat('');
 			
-			if (nonemojis.length !== replaceEmojis.length || replaceEmojis.length !== translations.length) {
-				console.warn('Programmer error: assumption of split length is incorrect.', nonemojis, emojis, translations);
+			// if this is true, something went wrong
+			if (nonemojis.length !== replaceEmojis.length || 
+				replaceEmojis.length !== translations.length) {
+				console.warn(
+					'Programmer error: unexpected split length.', 
+					nonemojis, 
+					emojis, 
+					translations
+				);
 			}
 
 			return nonemojis.map((nonemoji, index) => {
@@ -135,7 +132,8 @@ const emojiReplacer = (function(){
 				};
 
 				// treat regional indicators as nonemojis
-				if (settings.ignoreFlags && /[\u{1F1E6}-\u{1F1FF}]/u.test(emojis[index])) {
+				if (settings.ignoreFlags && 
+					/[\u{1F1E6}-\u{1F1FF}]/u.test(emojis[index])) {
 					replacedParts['nonemoji'] = nonemoji.concat(emojis[index]);
 					replacedParts['emoji'] = '';
 					replacedParts['translation'] = '';
@@ -152,54 +150,91 @@ const emojiReplacer = (function(){
 		return false;
 	}
 
+	function getReplacedEmojiNode(emoji, translation) {
+		const emojiNode = document.createElement('span');
+		emojiNode.classList.add('emoji-to-english-translatable');
+		emojiNode.appendChild(document.createTextNode(emoji));
+
+		// show translation on hover
+		if (settings.emojiDisplay === 'tooltip') {
+			emojiNode.setAttribute('title', translation);
+		}
+
+		return emojiNode;
+	}
+
 	function buildTranslatedNodes(originalNode) {
 		const originalText = originalNode.nodeValue;
-		const parent = originalNode.parentElement;
+		const parentNode = originalNode.parentElement;
 		const ZEROWIDTHJOINER = '\u200D';
 		
 		// do not replace script contents
-		if (!parent || parent.tagName.toLowerCase() !== 'script') {
+		if (!parentNode || parentNode.tagName.toLowerCase() !== 'script') {
 
 			// splice together translations and surrounding text
 			const replacementDictionary = getReplacedParts(originalText);
 
 			if (replacementDictionary) {
+
+				// text node may be segmented by multiple emojis;
+				// build original + emoji + translation by segment
 				let index = 0;
 				while (index < replacementDictionary.length) {
-					let {nonemoji, emoji, translation} = replacementDictionary[index];
+					let {
+						nonemoji, 
+						emoji, 
+						translation
+					} = replacementDictionary[index];
 
-					// collapse consecutive emoji matches in array
+					// for legibility, group consecutive emojis together
+					// and display translation afterwards;
+					// concatenate sections until a nonemoji is encountered
 					while (++index < replacementDictionary.length) {
-						// look ahead for empty sections in the original splitted by emojis
+						// look ahead for empty sections in 
+						// the original text, segmented by emojis
 						const nextSection = replacementDictionary[index];
 
 						const nonemojiIsEmpty = nextSection['nonemoji'] === '';
-						const nonemojiIsZeroWidthJoiner = nextSection['nonemoji'] === ZEROWIDTHJOINER;
+						const nonemojiIsZeroWidthJoiner = 
+							nextSection['nonemoji'] === ZEROWIDTHJOINER;
 
 						if (nonemojiIsEmpty || nonemojiIsZeroWidthJoiner) {
-							// add ZERO WIDTH JOINER back into emoji to display joined emojis properly
+							// add ZERO WIDTH JOINER back into emoji 
+							// to display joined emojis properly
 							if (nonemojiIsZeroWidthJoiner) {
 								emoji = emoji.concat(ZEROWIDTHJOINER);
 							}
 
-							nonemoji = nonemoji.concat(nextSection['nonemoji']);
+							nonemoji = nonemoji.concat(
+								nextSection['nonemoji']
+							);
+
 							emoji = emoji.concat(nextSection['emoji']);
-							translation = translation.concat(nextSection['translation']);
+
+							translation = translation.concat(
+								nextSection['translation']
+							);
 
 						} else {
 							break;
 						}
 					}
 
-					// insert nodes for non-matched/surrounding text from original
-					const node = document.createTextNode(nonemoji);
-					parent.insertBefore(node, originalNode);
+					const nonemojiNode = document.createTextNode(nonemoji);
 
-					// insert nodes for translated emojis
-					// use `innerHTML` to support formatted html code
-					template.innerHTML = `${emoji}${translation}`;
+					const emojiNode = getReplacedEmojiNode(emoji, translation);
 
-					parent.insertBefore(template.content, originalNode);
+					const translationNode = document.createElement('samp');
+					translationNode.classList.
+						add('emoji-to-english-translation');
+					translationNode.appendChild(
+						document.createTextNode(translation)
+					);
+
+					parentNode.insertBefore(nonemojiNode, originalNode);
+					parentNode.insertBefore(emojiNode, originalNode);
+					parentNode.insertBefore(translationNode, originalNode);
+
 				}
 				// clear original text node
 				originalNode.nodeValue = "";
