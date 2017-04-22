@@ -11,4 +11,9 @@ chrome.storage.local.get(null, (res) => {
 		const originalNode = treeWalker.currentNode;
 		emojiReplacer.translateTextNode(originalNode);
 	}
+
+	// hide emoji
+	if (emojiReplacer.settings['emojiDisplay'] === 'hide') {
+		document.body.setAttribute('data-emoji-to-english-hide-emojis', 1);
+	}
 });
