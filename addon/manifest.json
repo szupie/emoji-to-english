@@ -10,6 +10,9 @@
 			"css": ["emoji-to-english.css"]
 		}
 	],
+	"background": {
+		"scripts": ["context-menu-handler.js"]
+	},
 	"applications": {
 		"gecko": {
 			"id": "emojisToEnglish@szupie"
@@ -18,6 +21,9 @@
 	"options_ui": {
 		"page": "settings.html"
 	},
-	"permissions": ["storage"],
+	"permissions": [
+		"storage",
+		"contextMenus"
+	],
 	"default_locale": "en"
 }
