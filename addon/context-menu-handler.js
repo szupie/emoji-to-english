@@ -36,11 +36,21 @@ const menuItems = [
 	}
 ];
 
-function createMenus(items) {
-	items.forEach(item => {
+function createMenus() {
+	menuItems.forEach(item => {
 		browser.contextMenus.create(item)
 	});
 }
 
 
-createMenus(menuItems);
+function handleMessage(message) {
+	if (message['type'] === "context-menu") {
+		if (message['content'] === 'show') {
+			createMenus(menuItems);
+		} else if (message['content'] === 'hide') {
+			browser.contextMenus.removeAll();
+		}
+	}
+}
+
+browser.runtime.onMessage.addListener(handleMessage);

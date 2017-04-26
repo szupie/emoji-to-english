@@ -6,6 +6,11 @@ const emojiReplacer = (function(){
 		'colons': [':', ':'],
 	}
 
+	const classNames = {
+		'emoji': 'emoji-to-english-translatable',
+		'translation': 'emoji-to-english-translation'
+	};
+
 	const settings = {};
 
 	settings.emojiDisplay = 'emoji';
@@ -20,6 +25,7 @@ const emojiReplacer = (function(){
 	return {
 		settings,
 		set,
+		classNames,
 		translateTextNode: buildTranslatedNodes
 	}
 
@@ -152,7 +158,7 @@ const emojiReplacer = (function(){
 
 	function getReplacedEmojiNode(emoji, translation) {
 		const emojiNode = document.createElement('span');
-		emojiNode.classList.add('emoji-to-english-translatable');
+		emojiNode.classList.add(classNames['emoji']);
 		emojiNode.appendChild(document.createTextNode(emoji));
 
 		// show translation on hover
@@ -225,8 +231,7 @@ const emojiReplacer = (function(){
 					const emojiNode = getReplacedEmojiNode(emoji, translation);
 
 					const translationNode = document.createElement('samp');
-					translationNode.classList.
-						add('emoji-to-english-translation');
+					translationNode.classList.add(classNames['translation']);
 					translationNode.appendChild(
 						document.createTextNode(translation)
 					);
