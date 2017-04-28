@@ -4,20 +4,22 @@ const menuItems = [
 		title: 'Emoji Settings',
 		contexts: ['link', 'page'],
 	}, {
+	// These should be radio items, but unlike checkboxes, radios do not work
+	// if they are removed while the context menu is visible
 		id: 'context-translation-inline',
-		type: 'radio',
+		type: 'checkbox', 
 		parentId: 'context-parent',
-		title: 'Always Show Translation',
+		title: 'Always Show Translations',
 	}, {
 		id: 'context-translation-hover',
-		type: 'radio',
+		type: 'checkbox',
 		parentId: 'context-parent',
-		title: 'Show Translation on Hover',
+		title: 'Show Translations on Hover',
 	}, {
 		id: 'context-translation-hide',
-		type: 'radio',
+		type: 'checkbox',
 		parentId: 'context-parent',
-		title: 'Always Hide Translation',
+		title: 'Always Hide Translations',
 	}, {
 		type: 'separator',
 		parentId: 'context-parent',
@@ -25,7 +27,7 @@ const menuItems = [
 		id: 'context-emoji-hide',
 		type: 'checkbox',
 		parentId: 'context-parent',
-		title: 'Hide Emoji',
+		title: 'Hide Emojis',
 	}, {
 		type: 'separator',
 		parentId: 'context-parent',
@@ -37,20 +39,33 @@ const menuItems = [
 ];
 
 function createMenus() {
-	menuItems.forEach(item => {
-		browser.contextMenus.create(item)
-	});
+	return Promise.all(
+		menuItems.map(item => {
+			return new Promise(resolve => {
+				browser.contextMenus.create(item, resolve);
+			});
+		})
+	);
+}
+
+function destroyMenus() {
+	return browser.contextMenus.removeAll();
+}
+
+function handleMenuClick(info, tab) {
+	// console.log(info);
 }
 
 
 function handleMessage(message) {
 	if (message['type'] === "context-menu") {
 		if (message['content'] === 'show') {
-			createMenus(menuItems);
+			createMenus();
 		} else if (message['content'] === 'hide') {
-			browser.contextMenus.removeAll();
+			destroyMenus();
 		}
 	}
 }
 
 browser.runtime.onMessage.addListener(handleMessage);
+browser.contextMenus.onClicked.addListener(handleMenuClick);
