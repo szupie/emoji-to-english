@@ -6,21 +6,21 @@ const emojiReplacer = (function(){
 		'colons': [':', ':'],
 	}
 
-	const settings = {};
-
-	settings.emojiDisplay = 'emoji';
-	settings.showTranslation = true;
-	settings.wrapper = 'parentheses';
-	settings.wrapStart = '';
-	settings.wrapEnd = '';
-	settings.ignoreFlags = true;
-
-	const pattern = buildPattern();
+	let settings;
+	let pattern;
 
 	return {
+		init,
 		settings,
 		set,
 		translateTextNode: buildTranslatedNodes
+	}
+
+	function init() {
+		return requestSettings().then(response => {
+			settings = response;
+			pattern = buildPattern();
+		});
 	}
 
 	function buildPattern() {
@@ -260,4 +260,12 @@ const emojiReplacer = (function(){
 	function set(setting, value) {
 		settings[setting] = value;
 	}
+
+	function requestSettings() {
+		return browser.runtime.sendMessage({
+			'type': 'settings-request', 
+			'content': 'get'
+		});
+	}
+
 }());

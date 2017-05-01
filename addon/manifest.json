@@ -15,6 +15,12 @@
 			"css": ["emoji-to-english.css"]
 		}
 	],
+	"background": {
+		"scripts": [
+			"settings-manager.js"
+		],
+		"persistent": false
+	},
 	"applications": {
 		"gecko": {
 			"id": "emojisToEnglish@szupie"

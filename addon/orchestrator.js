@@ -1,14 +1,27 @@
-chrome.storage.local.get(null, (res) => {
-	// retrieve settings
-	for (let setting in res) {
-		emojiReplacer.set(setting, res[setting]);
+const orchestrator = (function(){
+
+	const settings = {};
+
+	return {
+		init
 	}
 
-	domManipulator.start();
-	
-	// hide emoji
-	if (emojiReplacer.settings['emojiDisplay'] === 'hide') {
-		document.body.setAttribute('data-emoji-to-english-hide-emojis', 1);
+
+	async function init() {
+		await browser.runtime.sendMessage({
+			'type': 'settings-request', 
+			'content': 'ready'
+		});
+		await emojiReplacer.init();
+		domManipulator.start();
+
+		// hide emoji
+		if (emojiReplacer.settings['emojiDisplay'] === 'hide') {
+			document.body.setAttribute('data-emoji-to-english-hide-emojis', 1);
+		}
+
 	}
 
-});
+}());
+
+orchestrator.init();
