@@ -1,5 +1,9 @@
 const emojiReplacer = (function(){
 
+	const SETTINGS_REQUEST = SettingsConstants.REQUEST;
+	const RequestTypes = SettingsConstants.RequestTypes;
+
+	// TODO: move these constants to settings panel
 	const wrappers = {
 		'parentheses': ['(', ')'],
 		'squarebrackets': ['[', ']'],
@@ -20,7 +24,7 @@ const emojiReplacer = (function(){
 		return requestSettings().then(response => {
 			settings = response;
 			pattern = buildPattern();
-		});
+		}, failure => { console.trace(failure); });
 	}
 
 	function buildPattern() {
@@ -263,8 +267,8 @@ const emojiReplacer = (function(){
 
 	function requestSettings() {
 		return browser.runtime.sendMessage({
-			'type': 'settings-request', 
-			'content': 'get'
+			type: SETTINGS_REQUEST, 
+			content: RequestTypes.GET
 		});
 	}
 

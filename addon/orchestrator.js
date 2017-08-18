@@ -1,5 +1,8 @@
 const orchestrator = (function(){
 
+	const SETTINGS_REQUEST = SettingsConstants.REQUEST;
+	const RequestTypes = SettingsConstants.RequestTypes;
+
 	const settings = {};
 
 	return {
@@ -8,9 +11,10 @@ const orchestrator = (function(){
 
 
 	async function init() {
+		// wait for settings to load
 		await browser.runtime.sendMessage({
-			'type': 'settings-request', 
-			'content': 'ready'
+			type: SETTINGS_REQUEST, 
+			content: RequestTypes.WAIT_FOR_LOAD
 		});
 		await emojiReplacer.init();
 		domManipulator.start();

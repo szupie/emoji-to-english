@@ -1,3 +1,6 @@
+const SETTINGS_REQUEST = SettingsConstants.REQUEST;
+const RequestTypes = SettingsConstants.RequestTypes;
+
 async function init() {
 	await getSettingsFromManager();
 	await emojiReplacer.init();
@@ -33,7 +36,7 @@ function restoreSettings() {
 			}
 		}
 		updatePreview();
-	});
+	}, failure => { console.trace(failure); });
 }
 
 function updatePreview() {
@@ -45,17 +48,17 @@ function updatePreview() {
 
 function getSettingsFromManager() {
 	return browser.runtime.sendMessage({
-		'type': 'settings-request', 
-		'content': 'get'
+		type: SETTINGS_REQUEST, 
+		content: RequestTypes.GET
 	});
 }
 
-function saveSettingToManager(key, value) {
+function saveSettingToManager(theKey, theValue) {
 	return browser.runtime.sendMessage({
-		'type': 'settings-request', 
-		'content': 'set',
-		'key': key,
-		'value': value
+		type: SETTINGS_REQUEST, 
+		content: RequestTypes.SET,
+		key: theKey,
+		value: theValue
 	});
 }
 
