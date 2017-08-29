@@ -2,9 +2,6 @@
 
 const settingsMigrator = (function(){
 
-	const SettingsGroup = SettingsConstants.Group;
-	const Translation = SettingsConstants.Translation;
-
 	const Keys = SettingsConstants.Keys;
 	const Values = SettingsConstants.Values;
 
@@ -24,10 +21,10 @@ const settingsMigrator = (function(){
 				newSettings = await migrateFromPre3();
 				break;
 		}
-		console.log('new settings:');
-		console.log(newSettings);
-		// browser.storage.local.clear();
-		// settingsManager.set(newSettings);
+		//console.log('new settings:');
+		settingsManager.clean();
+		settingsManager.setAll(newSettings);
+		//settingsManager.get().then(settings => { console.log(settings)});
 	}
 
 	function migrateFromPre3() {
@@ -35,22 +32,20 @@ const settingsMigrator = (function(){
 			'parentheses': ['(', ')'],
 			'squarebrackets': ['[', ']'],
 			'colons': [':', ':'],
+			'nothing': ['','']
 		}
 		return settingsManager.get().then(settings => {
 			const translationSettings = {};
 			const styleSettings = {};
 			let updated = {};
 
-			if (settings['showTranslation'] === true) {
-				updated[Keys.DISPLAY_MODE] = Values.DisplayModes.INLINE;
-			} else {
+			if (settings['showTranslation'] === false) {
 				updated[Keys.DISPLAY_MODE] = Values.DisplayModes.NONE;
+			} else {
+				updated[Keys.DISPLAY_MODE] = Values.DisplayModes.INLINE;
 			}
 
 			switch (settings['emojiDisplay']) {
-				case 'emoji':
-					updated[Keys.SHOW_EMOJI] = true;
-					break;
 				case 'tooltip':
 					updated[Keys.SHOW_EMOJI] = true;
 					updated[Keys.DISPLAY_MODE] = Values.DisplayModes.TOOLTIP;
@@ -58,9 +53,13 @@ const settingsMigrator = (function(){
 				case 'hide':
 					updated[Keys.SHOW_EMOJI] = false;
 					break;
+				case 'emoji':
+				default:
+					updated[Keys.SHOW_EMOJI] = true;
+					break;
 			}
 
-			if (settings['wrapper'] !== 'custom') {
+			if (settings['wrapper'] && settings['wrapper'] !== 'custom') {
 				const rawWrappers = pre3Wrappers[settings['wrapper']];
 				updated[Keys.WRAPPER_START] = rawWrappers[0];
 				updated[Keys.WRAPPER_END] = rawWrappers[1];
@@ -72,6 +71,12 @@ const settingsMigrator = (function(){
 			if (settings['ignoreFlags']) {
 				// TODO: add flags to ignore list
 			}
+
+			Object.getOwnPropertyNames(updated).forEach(key => {
+				if (typeof updated[key] === 'undefined') {
+					delete updated[key];
+				}
+			});
 
 			return updated;
 		});

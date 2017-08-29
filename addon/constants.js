@@ -13,7 +13,6 @@ const SettingsConstants = Object.freeze(function(){
 
 	const TranslationSettings = Object.freeze({
 		DISPLAY_MODE: 'displayMode',
-		WRAPPER: 'wrapper',
 		WRAPPER_START: 'wrapperStart',
 		WRAPPER_END: 'wrapperEnd',
 		IGNORE_LIST: 'ignoreList'
@@ -43,7 +42,8 @@ const SettingsConstants = Object.freeze(function(){
 		REQUEST,
 		RequestTypes,
 		Keys,
-		Values
+		Values,
+		StyleSettings
 	});
 
 }());

@@ -1,3 +1,9 @@
+/* Hide emojis if attribute is set */
 [data-emoji-to-english-hide-emojis="1"] .emoji-to-english-translatable {
+	display: none;
+}
+
+/* Hide inline translation if tooltip available */
+.emoji-to-english-translatable[title]:not([title=""]) + .emoji-to-english-translation {
 	display: none;
 }

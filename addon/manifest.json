@@ -1,13 +1,14 @@
 {
 	"manifest_version": 2,
 	"name": "Emoji to English",
-	"version": "2.1",
+	"version": "3",
 	"description": "Translates emojis to their Unicode names",
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
 			"js": [
 				"constants.js",
+				"styler.js",
 				"names-dict.js", 
 				"emoji-replacer.js", 
 				"dom-manipulator.js",

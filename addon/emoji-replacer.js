@@ -3,12 +3,8 @@ const emojiReplacer = (function(){
 	const SETTINGS_REQUEST = SettingsConstants.REQUEST;
 	const RequestTypes = SettingsConstants.RequestTypes;
 
-	// TODO: move these constants to settings panel
-	const wrappers = {
-		'parentheses': ['(', ')'],
-		'squarebrackets': ['[', ']'],
-		'colons': [':', ':'],
-	}
+	const Keys = SettingsConstants.Keys;
+	const Values = SettingsConstants.Values;
 
 	let settings;
 	let pattern;
@@ -92,13 +88,10 @@ const emojiReplacer = (function(){
 	function getTranslationForEmoji(emoji) {
 		const name = getLocalisedNameForEmoji(emoji);
 		
-		let userWrappers = ['', ''];
-		if (settings.wrapper !== 'nothing') {
-			userWrappers = wrappers[settings.wrapper];
-			if (settings.wrapper === 'custom') {
-				userWrappers = [settings.wrapStart, settings.wrapEnd];
-			}
-		}
+		const userWrappers = [
+			settings[Keys.WRAPPER_START], 
+			settings[Keys.WRAPPER_END]
+		];
 		return `${userWrappers[0]}${name}${userWrappers[1]}`;
 	}
 
@@ -144,7 +137,7 @@ const emojiReplacer = (function(){
 				}
 
 				// suppress translation after emoji
-				if (!settings.showTranslation) {
+				if (settings[Keys.DISPLAY_MODE] === Values.DisplayModes.NONE) {
 					replacedParts['translation'] = '';
 				}
 
@@ -160,7 +153,7 @@ const emojiReplacer = (function(){
 		emojiNode.appendChild(document.createTextNode(emoji));
 
 		// show translation on hover
-		if (settings.emojiDisplay === 'tooltip') {
+		if (settings[Keys.DISPLAY_MODE] === Values.DisplayModes.TOOLTIP) {
 			emojiNode.setAttribute('title', translation);
 		}
 

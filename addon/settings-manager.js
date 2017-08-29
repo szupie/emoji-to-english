@@ -9,13 +9,7 @@ const settingsManager = (function(){
 	const Values = SettingsConstants.Values;
 
 	const items = {};
-
-	items.emojiDisplay = 'emoji';
-	items.showTranslation = true;
-	items.wrapper = 'parentheses';
-	items.wrapStart = '';
-	items.wrapEnd = '';
-	items.ignoreFlags = true;
+	const settings = {};
 
 	let loadResolver;
 	const settingsLoaded = new Promise(resolve => {
@@ -25,19 +19,19 @@ const settingsManager = (function(){
 	return {
 		init,
 		get,
-		set
+		set,
+		setAll,
+		clean
 	}
 
 	function init() {
 		// load user settings
 		const promise = browser.storage.local.get(null).then(response => {
-			for (let key in response) {
-				set(key, response[key]);
-				console.log(key, response[key]);
-			}
+			const initSettings = {};
+			Object.assign(initSettings, getDefaults(), response);
+			setAll(initSettings);
 			loadResolver(); // settings loaded; resolve promise
 		}, failure => { console.trace(failure); });
-
 		browser.runtime.onMessage.addListener(handleMessage);
 
 		// handle updates
@@ -48,14 +42,41 @@ const settingsManager = (function(){
 
 	async function get(key) {
 		await isReady();
-		return key ? items[key] : items;
+		return key ? settings[key] : settings;
 	}
 
 	function set(key, value) {
-		items[key] = value;
+		settings[key] = value;
 		return browser.storage.local.set({
 			[key]: value
 		});
+	}
+
+	function setAll(dict) {
+		for (let key in dict) {
+			set(key, dict[key]);
+		}
+	}
+
+	function clean() {
+		// clear settings in memory
+		Object.getOwnPropertyNames(settings).forEach(key => {
+			if (!Object.values(Keys).includes(key)) {
+				delete settings[key];
+			}
+		});
+		browser.storage.local.clear(); // clear settings in storage
+	}
+
+	function getDefaults() {
+		const defaults = {};
+		defaults[Keys.DISPLAY_MODE] = Values.DisplayModes.INLINE;
+		defaults[Keys.WRAPPER_START] = '[:';
+		defaults[Keys.WRAPPER_END] = ':]';
+		//defaults[Keys.IGNORE_LIST] = '';
+		defaults[Keys.SHOW_EMOJI] = true;
+
+		return defaults;
 	}
 
 	function isReady() {
@@ -72,16 +93,18 @@ const settingsManager = (function(){
 					sendResponse(get());
 					break;
 				case RequestTypes.SET:
-					// TODO: set
+					set(message.key, message.value);
+					sendResponse(true);
 					break;
 			}
 		}
 	}
 
-	function handleInstalled(details) {
+	async function handleInstalled(details) {
 		if (details.reason === 'update') {
-			console.log(details.previousVersion);
+			//console.log(details.previousVersion);
 			if (Number.parseFloat(details.previousVersion) < 3) {
+				await isReady();
 				settingsMigrator.migrate(settingsMigrator.Schemas.PRE3);
 			}
 		}

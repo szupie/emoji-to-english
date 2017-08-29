@@ -4,17 +4,26 @@ const RequestTypes = SettingsConstants.RequestTypes;
 async function init() {
 	await getSettingsFromManager();
 	await emojiReplacer.init();
+	await emojiStyler.init();
 	restoreSettings();
 }
 
 function saveSetting(e) {
 	const setting = e.target.name;
 	let value = e.target.value;
+
+	// cast input value to boolean
 	if (e.target.hasAttribute('data-is-boolean')) {
 		value = (value === 'true');
 	}
+
 	saveSettingToManager(setting, value);
-	emojiReplacer.set(setting, value);
+
+	if (e.target.getAttribute('data-setting-type') === 'style') {
+		emojiStyler.set(setting, value);
+	} else {
+		emojiReplacer.set(setting, value);
+	}
 	updatePreview();
 
 	document.getElementById('settings').classList.add('changed', 'fresh');

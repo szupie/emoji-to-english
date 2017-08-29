@@ -17,13 +17,8 @@ const orchestrator = (function(){
 			content: RequestTypes.WAIT_FOR_LOAD
 		});
 		await emojiReplacer.init();
+		await emojiStyler.init();
 		domManipulator.start();
-
-		// hide emoji
-		if (emojiReplacer.settings['emojiDisplay'] === 'hide') {
-			document.body.setAttribute('data-emoji-to-english-hide-emojis', 1);
-		}
-
 	}
 
 }());
