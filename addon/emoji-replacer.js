@@ -8,6 +8,7 @@ const emojiReplacer = (function(){
 
 	let settings;
 	let pattern;
+	let ignorePattern;
 
 	return {
 		init,
@@ -19,11 +20,12 @@ const emojiReplacer = (function(){
 	function init() {
 		return requestSettings().then(response => {
 			settings = response;
-			pattern = buildPattern();
+			pattern = getEmojiMatchPattern();
+			rebuildIgnorePattern();
 		}, failure => { console.trace(failure); });
 	}
 
-	function buildPattern() {
+	function getEmojiMatchPattern() {
 		const emojis = Object.keys(namesDictionary);
 		// sort by longest first to grep longest match
 		emojis.sort((a,b) => {
@@ -32,6 +34,15 @@ const emojiReplacer = (function(){
 
 		const escapedEmojis = emojis.map(emoji => escapeForRegex(emoji));
 		return new RegExp(escapedEmojis.join('|'), 'ug');
+	}
+
+	function rebuildIgnorePattern() {
+		const ignorePatterns = ['.^']; // matches nothing initially
+		settings[Keys.IGNORE_LIST].forEach(setAlias => {
+			ignorePatterns.push(ignoreSets[setAlias]);
+		});
+
+		ignorePattern = new RegExp(ignorePatterns.join('|'), 'u');
 	}
 
 	function getAndVerifyMessage(message) {
@@ -128,9 +139,8 @@ const emojiReplacer = (function(){
 					translation: translations[index]
 				};
 
-				// treat regional indicators as nonemojis
-				if (settings.ignoreFlags && 
-					/[\u{1F1E6}-\u{1F1FF}]/u.test(emojis[index])) {
+				// treat ignored strings as nonemojis
+				if (ignorePattern.test(emojis[index])) {
 					replacedParts['nonemoji'] = nonemoji.concat(emojis[index]);
 					replacedParts['emoji'] = '';
 					replacedParts['translation'] = '';
@@ -256,6 +266,9 @@ const emojiReplacer = (function(){
 
 	function set(setting, value) {
 		settings[setting] = value;
+		if (setting === Keys.IGNORE_LIST) {
+			rebuildIgnorePattern();
+		}
 	}
 
 	function requestSettings() {
