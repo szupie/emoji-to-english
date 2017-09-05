@@ -17,6 +17,17 @@ function saveSetting(e) {
 		value = (value === 'true');
 	}
 
+	// transform checkbox data into list
+	if (e.target.getAttribute('type') === 'checkbox') {
+		const commonAncestorNode = e.target.closest('.options');
+		const selectedNodes = commonAncestorNode.querySelectorAll('input[type="checkbox"]:checked');
+		const checkedList = [];
+		for (const checkboxNode of selectedNodes) {
+			checkedList.push(checkboxNode.value);
+		}
+		value = checkedList;
+	}
+
 	saveSettingToManager(setting, value);
 
 	if (e.target.getAttribute('data-setting-type') === 'style') {
@@ -41,7 +52,17 @@ function restoreSettings() {
 	getSettingsFromManager().then(items => {
 		for (let key in items) {
 			if (formElements[key]) {
-				formElements[key].value = items[key];
+				// handle checkboxes
+				if (formElements[key] instanceof RadioNodeList && Array.isArray(items[key])) {
+					const checkedItems = items[key];
+					for (const checkboxNode of formElements[key]) {
+						if (checkedItems.includes(checkboxNode.value)) {
+							checkboxNode.checked = true;
+						}
+					}
+				} else {
+					formElements[key].value = items[key];
+				}
 			}
 		}
 		updatePreview();
