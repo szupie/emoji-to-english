@@ -6,6 +6,7 @@ const emojiReplacer = (function(){
 	const Keys = SettingsConstants.Keys;
 	const Values = SettingsConstants.Values;
 
+	let flattenedDictionary = {};
 	let settings;
 	let pattern;
 	let ignorePattern;
@@ -18,6 +19,7 @@ const emojiReplacer = (function(){
 	}
 
 	function init() {
+		buildFlattenedDictionary();
 		return requestSettings().then(response => {
 			settings = response;
 			pattern = getEmojiMatchPattern();
@@ -26,7 +28,7 @@ const emojiReplacer = (function(){
 	}
 
 	function getEmojiMatchPattern() {
-		const emojis = Object.keys(namesDictionary);
+		const emojis = Object.keys(flattenedDictionary);
 		// sort by longest first to grep longest match
 		emojis.sort((a,b) => {
 			return b.length - a.length;
@@ -38,9 +40,11 @@ const emojiReplacer = (function(){
 
 	function rebuildIgnorePattern() {
 		const ignorePatterns = ['.^']; // matches nothing initially
-		settings[Keys.IGNORE_LIST].forEach(setAlias => {
-			ignorePatterns.push(ignoreSets[setAlias]);
-		});
+		if (settings[Keys.IGNORE_LIST]) {
+			settings[Keys.IGNORE_LIST].forEach(setAlias => {
+				ignorePatterns.push(ignoreSets[setAlias]);
+			});
+		}
 
 		ignorePattern = new RegExp(ignorePatterns.join('|'), 'u');
 	}
@@ -90,7 +94,7 @@ const emojiReplacer = (function(){
 
 		if (isUndefined(translation)) {
 			// fall back to non-localised name
-			translation = namesDictionary[emoji];
+			translation = flattenedDictionary[emoji];
 		}
 
 		return translation;
@@ -269,6 +273,16 @@ const emojiReplacer = (function(){
 		if (setting === Keys.IGNORE_LIST) {
 			rebuildIgnorePattern();
 		}
+	}
+
+	function buildFlattenedDictionary() {
+		const groups = Object.keys(namesDictionary);
+		groups.forEach(group => {
+			const subgroups = Object.keys(namesDictionary[group]);
+			subgroups.forEach(subgroup => {
+				Object.assign(flattenedDictionary, namesDictionary[group][subgroup]);
+			});
+		});
 	}
 
 	function requestSettings() {
