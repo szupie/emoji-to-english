@@ -10,7 +10,6 @@
 				"constants.js",
 				"styler.js",
 				"names-dict.js", 
-				"ignore-sets.js", 
 				"emoji-replacer.js", 
 				"dom-manipulator.js",
 				"orchestrator.js" 

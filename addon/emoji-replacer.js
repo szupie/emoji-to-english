@@ -19,7 +19,7 @@ const emojiReplacer = (function(){
 	}
 
 	function init() {
-		buildFlattenedDictionary();
+		flattenedDictionary = flatten(namesDictionary);
 		return requestSettings().then(response => {
 			settings = response;
 			pattern = getEmojiMatchPattern();
@@ -39,14 +39,23 @@ const emojiReplacer = (function(){
 	}
 
 	function rebuildIgnorePattern() {
-		const ignorePatterns = ['.^']; // matches nothing initially
+		const ignorePatterns = []; // matches nothing initially
 		if (settings[Keys.IGNORE_LIST]) {
 			settings[Keys.IGNORE_LIST].forEach(setAlias => {
-				ignorePatterns.push(ignoreSets[setAlias]);
+				const setMatches = {};
+				const matchedGroup = flatten(namesDictionary[setAlias]);
+				const matchedSubgroup = flatten(namesDictionary)[setAlias];
+				Object.assign(setMatches, matchedGroup, matchedSubgroup);
+
+				ignorePatterns.push(...Object.keys(setMatches));
 			});
 		}
+		const escapedPatterns = ignorePatterns.map(str => escapeForRegex(str));
+		if (escapedPatterns.length <= 0) {
+			escapedPatterns.push('.^');
+		} 
 
-		ignorePattern = new RegExp(ignorePatterns.join('|'), 'u');
+		ignorePattern = new RegExp(escapedPatterns.join('|'), 'u');
 	}
 
 	function getAndVerifyMessage(message) {
@@ -275,14 +284,23 @@ const emojiReplacer = (function(){
 		}
 	}
 
-	function buildFlattenedDictionary() {
-		const groups = Object.keys(namesDictionary);
-		groups.forEach(group => {
-			const subgroups = Object.keys(namesDictionary[group]);
-			subgroups.forEach(subgroup => {
-				Object.assign(flattenedDictionary, namesDictionary[group][subgroup]);
-			});
-		});
+	function flatten(dict) {
+		while (!isFlat(dict)) {
+			dict = collapseObject(dict);
+		}
+		return dict;
+	}
+
+	function collapseObject(nestedObj) {
+		const collapsedObj = {};
+		if (nestedObj) {
+			Object.assign(collapsedObj, ...Object.values(nestedObj)); 
+		}
+		return collapsedObj;
+	}
+
+	function isFlat(object) {
+		return (typeof Object.values(object)[0] !== 'object');
 	}
 
 	function requestSettings() {
