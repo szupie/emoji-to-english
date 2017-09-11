@@ -1,19 +1,19 @@
-const treeWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); // filter to only text nodes
+const domManipulator = (function(){
 
-chrome.storage.local.get(null, (res) => {
-	// retrieve settings
-	for (let setting in res) {
-		emojiReplacer.set(setting, res[setting]);
+	return {
+		start
 	}
 
-	// perform replacement on each text node in document
-	while (treeWalker.nextNode()) {
-		const originalNode = treeWalker.currentNode;
-		emojiReplacer.translateTextNode(originalNode);
+	function start() {
+		const treeWalker = document.createTreeWalker(
+			document.body, NodeFilter.SHOW_TEXT // filter to only text nodes
+		);
+
+		// perform replacement on each text node in document
+		while (treeWalker.nextNode()) {
+			const originalNode = treeWalker.currentNode;
+			emojiReplacer.translateTextNode(originalNode);
+		}
 	}
 
-	// hide emoji
-	if (emojiReplacer.settings['emojiDisplay'] === 'hide') {
-		document.body.setAttribute('data-emoji-to-english-hide-emojis', 1);
-	}
-});
+}());

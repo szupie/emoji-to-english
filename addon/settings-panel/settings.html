@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="settings.css">
+		<link rel="stylesheet" href="../emoji-to-english.css">
+	</head>
+
+	<body>
+
+		<section id="settings">
+			<h2>Settings</h2>
+			<form>
+				<section>
+					<p>Translation display</p>
+					<section class="options">
+						<label>
+							<input type="radio" value="inline" name="displayMode">
+							Show translation after emoji
+						</label>
+						<label>
+							<input type="radio" value="tooltip" name="displayMode">
+							Show translation in mouseover tooltip
+						</label>
+						<label>
+							<input type="radio" value="none" name="displayMode">
+							Hide translation
+						</label>
+					</section>
+				</section>
+				<section>
+					<p>Show emoji</p>
+					<section class="options">
+						<label>
+							<input type="radio" value="true" data-is-boolean name="showEmoji" data-setting-type="style">
+							Yes
+						</label>
+						<label>
+							<input type="radio" value="false" data-is-boolean name="showEmoji" data-setting-type="style">
+							No
+						</label>
+					</section>
+				</section>
+				<section>
+					<p>Wrap translation with:</p>
+					<section class="options">
+						<label>
+							<input type="text" name="wrapperStart" placeholder="prefix">
+							<input type="text" name="wrapperEnd" placeholder="postfix">
+						</label>
+					</section>
+				</section>
+				<section>
+					<p>Ignored characters</p>
+					<section class="options">
+						<label>
+							<input type="checkbox" value="Smileys & People" name="ignoreList">
+							Smileys &amp; People
+						</label>
+						<label>
+							<input type="checkbox" value="Animals & Nature" name="ignoreList">
+							Animals &amp; Nature
+						</label>
+						<label>
+							<input type="checkbox" value="Food & Drink" name="ignoreList">
+							Food &amp; Drink
+						</label>
+						<label>
+							<input type="checkbox" value="Travel & Places" name="ignoreList">
+							Travel &amp; Places
+						</label>
+						<label>
+							<input type="checkbox" value="Activities" name="ignoreList">
+							Activities
+						</label>
+						<label>
+							<input type="checkbox" value="Objects" name="ignoreList">
+							Objects
+						</label>
+						<label>
+							<input type="checkbox" value="Symbols" name="ignoreList">
+							Symbols
+						</label>
+						<label>
+							<input type="checkbox" value="Flags" name="ignoreList">
+							Flags
+						</label>
+					</section>
+				</section>
+			</form>
+		</section>
+
+		<section id="preview">
+			<h2>Preview</h2>
+			<section id="original">
+				<h3>Before</h3>
+				<samp>
+					🎊 When your friends be like 🙆 and you all 😕; ✅ When 🦊❤️🍝, but the 👩‍👧‍👦 doesn't have 🇪🇺💰 or ⏳.
+				</samp>
+			</section>
+			<section id="translated">
+				<h3>After</h3>
+				<samp></samp>
+			</section>
+		</section>
+
+		<p id="changedMessage">Settings saved. Changes will apply to a page the next time it is loaded.</p>
+
+		<script src="../constants.js"></script>
+		<script src="../styler.js"></script>
+		<script src="../names-dict.js"></script>
+		<script src="../emoji-replacer.js"></script>
+		<script src="settings.js"></script>
+
+	</body>
+
+</html>
