@@ -1,5 +1,7 @@
 async function init() {
-	await settingsInterface.getSettingsFromManager();
+	await settingsInterface.getSettingsFromManager().catch(
+		failure => { console.trace(failure); }
+	);
 	await emojiReplacer.init();
 	await emojiStyler.init();
 	restoreSettings();
@@ -25,7 +27,9 @@ function saveSetting(e) {
 		value = checkedList;
 	}
 
-	settingsInterface.set(setting, value);
+	settingsInterface.set(setting, value).catch(
+		failure => { console.trace(failure); }
+	);
 	updatePreview();
 
 	document.getElementById('settings').classList.add('changed', 'fresh');

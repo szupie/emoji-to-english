@@ -4,9 +4,6 @@ const stylesheet = styleNode.sheet;
 
 const emojiStyler = (function() {
 
-	const SETTINGS_REQUEST = SettingsConstants.REQUEST;
-	const RequestTypes = SettingsConstants.RequestTypes;
-
 	const Keys = SettingsConstants.Keys;
 	const Values = SettingsConstants.Values;
 
@@ -22,11 +19,11 @@ const emojiStyler = (function() {
 	}
 
 	function init() {
-		return requestSettings().then(response => {
+		return settingsInterface.getSettingsFromManager().then(response => {
 			for (let key in SettingsConstants.StyleSettings) {
 				set(Keys[key], response[Keys[key]]);
 			}
-		});
+		}, failure => { console.trace(failure); });
 	}
 
 	function set(key, value) {
@@ -45,10 +42,4 @@ const emojiStyler = (function() {
 		console.log(stylesheet.cssRules);
 	}
 
-	function requestSettings() {
-		return browser.runtime.sendMessage({
-			type: SETTINGS_REQUEST, 
-			content: RequestTypes.GET
-		});
-	}
 }());
