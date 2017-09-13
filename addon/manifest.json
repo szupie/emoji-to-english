@@ -8,6 +8,7 @@
 			"matches": ["<all_urls>"],
 			"js": [
 				"constants.js",
+				"settings-interface.js",
 				"styler.js",
 				"names-dict.js", 
 				"emoji-replacer.js", 

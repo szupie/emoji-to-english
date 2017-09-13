@@ -34,3 +34,13 @@ document.addEventListener('mouseout', function(e) {
 		showMenu(false);
 	}
 });
+
+function handleMessage(message) {
+	if (message['type'] === "context-menu-set-setting") {
+		const setting = message['content']['key'];
+		const value = message['content']['value'];
+		settingsInterface.set(setting, value);
+	}
+}
+
+browser.runtime.onMessage.addListener(handleMessage);

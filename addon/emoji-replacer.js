@@ -1,8 +1,5 @@
 const emojiReplacer = (function(){
 
-	const SETTINGS_REQUEST = SettingsConstants.REQUEST;
-	const RequestTypes = SettingsConstants.RequestTypes;
-
 	const classNames = {
 		'emoji': 'emoji-to-english-translatable',
 		'translation': 'emoji-to-english-translation'
@@ -26,7 +23,7 @@ const emojiReplacer = (function(){
 
 	function init() {
 		flattenedDictionary = flatten(namesDictionary);
-		return requestSettings().then(response => {
+		return settingsInterface.getSettingsFromManager().then(response => {
 			settings = response;
 			pattern = getEmojiMatchPattern();
 			rebuildIgnorePattern();
@@ -306,13 +303,6 @@ const emojiReplacer = (function(){
 
 	function isFlat(object) {
 		return (typeof Object.values(object)[0] !== 'object');
-	}
-
-	function requestSettings() {
-		return browser.runtime.sendMessage({
-			type: SETTINGS_REQUEST, 
-			content: RequestTypes.GET
-		});
 	}
 
 }());

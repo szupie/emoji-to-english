@@ -1,8 +1,5 @@
-const SETTINGS_REQUEST = SettingsConstants.REQUEST;
-const RequestTypes = SettingsConstants.RequestTypes;
-
 async function init() {
-	await getSettingsFromManager();
+	await settingsInterface.getSettingsFromManager();
 	await emojiReplacer.init();
 	await emojiStyler.init();
 	restoreSettings();
@@ -28,13 +25,7 @@ function saveSetting(e) {
 		value = checkedList;
 	}
 
-	saveSettingToManager(setting, value);
-
-	if (e.target.getAttribute('data-setting-type') === 'style') {
-		emojiStyler.set(setting, value);
-	} else {
-		emojiReplacer.set(setting, value);
-	}
+	settingsInterface.set(setting, value);
 	updatePreview();
 
 	document.getElementById('settings').classList.add('changed', 'fresh');
@@ -49,7 +40,7 @@ function saveSetting(e) {
 function restoreSettings() {
 	const formElements = document.forms[0].elements;
 
-	getSettingsFromManager().then(items => {
+	settingsInterface.getSettingsFromManager().then(items => {
 		for (let key in items) {
 			if (formElements[key]) {
 				// handle checkboxes
@@ -74,22 +65,6 @@ function updatePreview() {
 	translatedNode.textContent = document.querySelector('#original samp').textContent;
 
 	emojiReplacer.translateTextNode(translatedNode.childNodes[0]);
-}
-
-function getSettingsFromManager() {
-	return browser.runtime.sendMessage({
-		type: SETTINGS_REQUEST, 
-		content: RequestTypes.GET
-	});
-}
-
-function saveSettingToManager(theKey, theValue) {
-	return browser.runtime.sendMessage({
-		type: SETTINGS_REQUEST, 
-		content: RequestTypes.SET,
-		key: theKey,
-		value: theValue
-	});
 }
 
 document.addEventListener("DOMContentLoaded", init);
