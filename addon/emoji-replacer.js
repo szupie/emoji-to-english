@@ -157,8 +157,6 @@ const emojiReplacer = (function(){
 
 				// treat ignored strings as nonemojis
 				if (ignorePattern.test(emojis[index])) {
-					replacedParts['nonemoji'] = nonemoji.concat(emojis[index]);
-					replacedParts['emoji'] = '';
 					replacedParts['translation'] = '';
 				}
 
@@ -246,6 +244,12 @@ const emojiReplacer = (function(){
 					const nonemojiNode = document.createTextNode(nonemoji);
 
 					const emojiNode = getReplacedEmojiNode(emoji, translation);
+					if (!translation || !translation.length) {
+						emojiNode.setAttribute(
+							'data-emoji-to-english-has-translation',
+							0
+						)
+					}
 
 					const translationNode = document.createElement('samp');
 					translationNode.classList.add(classNames['translation']);

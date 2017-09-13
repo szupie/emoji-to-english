@@ -1,5 +1,5 @@
 /* Hide emojis if attribute is set */
-[data-emoji-to-english-hide-emojis="1"] .emoji-to-english-translatable {
+[data-emoji-to-english-hide-emojis="1"] .emoji-to-english-translatable:not([data-emoji-to-english-has-translation="0"]) {
 	display: none;
 }
 
