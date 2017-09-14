@@ -8,12 +8,19 @@ const contextMenuHandler = (function(){
 			title: 'Emoji Settings',
 			contexts: ['link', 'page'],
 		}, {
+			id: 'context-reload',
+			parentId: 'context-parent',
+			title: 'Rescan for emojis',
+		}, {
+			type: 'separator',
+			parentId: 'context-parent',
+		}, {
 		// These should be radio items, but unlike checkboxes, radios do not work
 		// if they are removed while the context menu is visible
 			id: 'context-translation-inline',
 			type: 'checkbox', 
 			parentId: 'context-parent',
-			title: 'Always Show Translations',
+			title: 'Show Translations',
 		}, {
 			id: 'context-translation-hover',
 			type: 'checkbox',
@@ -23,7 +30,7 @@ const contextMenuHandler = (function(){
 			id: 'context-translation-hide',
 			type: 'checkbox',
 			parentId: 'context-parent',
-			title: 'Always Hide Translations',
+			title: 'Hide Translations',
 		}, {
 			type: 'separator',
 			parentId: 'context-parent',
@@ -76,20 +83,30 @@ const contextMenuHandler = (function(){
 	}
 
 	function handleMenuClick(info, tab) {
-		let key, value;
 		if (info.menuItemId.includes('context-translation-')) {
-			key = Keys.DISPLAY_MODE;
-			value = itemIdToValue(info.menuItemId);
+			browser.tabs.sendMessage(tab.id, {
+				'type': 'context-menu-set-setting', 
+				'content': {
+					key: Keys.DISPLAY_MODE,
+					value: itemIdToValue(info.menuItemId)
+				}
+			});
 		} else if (info.menuItemId === 'context-emoji-shown') {
-			key = Keys.SHOW_EMOJI;
-			value = info.checked;
+			browser.tabs.sendMessage(tab.id, {
+				'type': 'context-menu-set-setting', 
+				'content': {
+					key: Keys.SHOW_EMOJI,
+					value: info.checked
+				}
+			});
 		} else if (info.menuItemId === 'context-settings') {
 			browser.runtime.openOptionsPage()
+		} else if (info.menuItemId === 'context-reload') {
+			browser.tabs.sendMessage(tab.id, {
+				'type': 'context-menu-action', 
+				'content': 'reload'
+			});
 		}
-		browser.tabs.sendMessage(tab.id, {
-			'type': 'context-menu-set-setting', 
-			'content': {'key': key, 'value': value}
-		});
 	}
 
 	function itemIdToValue(itemId) {

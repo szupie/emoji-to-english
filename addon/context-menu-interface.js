@@ -36,10 +36,15 @@ document.addEventListener('mouseout', function(e) {
 });
 
 function handleMessage(message) {
-	if (message['type'] === "context-menu-set-setting") {
+	if (message['type'] === 'context-menu-set-setting') {
 		const setting = message['content']['key'];
 		const value = message['content']['value'];
 		settingsInterface.set(setting, value);
+		domManipulator.start();
+	} else if (message['type'] === 'context-menu-action') {
+		if (message['content'] === 'reload') {
+			domManipulator.start();
+		}
 	}
 }
 
