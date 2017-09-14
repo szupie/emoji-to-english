@@ -34,6 +34,8 @@ const settingsMigrator = (function(){
 			'colons': [':', ':'],
 			'nothing': ['','']
 		}
+		const defaults = settingsManager.getDefaults();
+
 		return settingsManager.get().then(settings => {
 			const translationSettings = {};
 			const styleSettings = {};
@@ -68,8 +70,10 @@ const settingsMigrator = (function(){
 				updated[Keys.WRAPPER_END] = settings['wrapEnd'];
 			}
 
-			if (settings['ignoreFlags']) {
-				// TODO: add flags to ignore list
+			if (!settings['ignoreFlags']) {
+				updated[Keys.IGNORE_LIST] = defaults[Keys.IGNORE_LIST].filter(
+					setAlias => setAlias !== 'Flags'
+				);
 			}
 
 			Object.getOwnPropertyNames(updated).forEach(key => {
