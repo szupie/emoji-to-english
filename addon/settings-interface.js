@@ -1,7 +1,8 @@
 const settingsInterface = (function(){
 
 	function set(setting, value) {
-		if (!(setting in SettingsConstants.StyleSettings)) {
+		const styleSettings = Object.values(SettingsConstants.StyleSettings);
+		if (!styleSettings.includes(setting)) {
 			emojiReplacer.set(setting, value);
 		} else {
 			emojiStyler.set(setting, value);

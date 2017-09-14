@@ -176,11 +176,6 @@ const emojiReplacer = (function(){
 		emojiNode.classList.add(classNames['emoji']);
 		emojiNode.appendChild(document.createTextNode(emoji));
 
-		// show translation on hover
-		if (settings[Keys.DISPLAY_MODE] === Values.DisplayModes.TOOLTIP) {
-			emojiNode.setAttribute('title', translation);
-		}
-
 		return emojiNode;
 	}
 
@@ -259,7 +254,14 @@ const emojiReplacer = (function(){
 
 					parentNode.insertBefore(nonemojiNode, originalNode);
 					parentNode.insertBefore(emojiNode, originalNode);
-					parentNode.insertBefore(translationNode, originalNode);
+
+					// show translation on hover
+					if (settings[Keys.DISPLAY_MODE] === 
+						Values.DisplayModes.TOOLTIP) {
+						emojiNode.setAttribute('title', translation);
+					} else {
+						parentNode.insertBefore(translationNode, originalNode);
+					}
 
 				}
 				// clear original text node

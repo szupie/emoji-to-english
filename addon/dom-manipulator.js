@@ -28,7 +28,7 @@ const domManipulator = (function(){
 
 		// restore emojis
 		let emojiNodes = 
-			document.getElementsByClassName('emoji-to-english-translatable');
+			document.querySelectorAll('.emoji-to-english-translatable');
 		for (const emojiNode of emojiNodes) {
 			emojiNode.parentNode.insertBefore(
 				document.createTextNode(emojiNode.textContent),

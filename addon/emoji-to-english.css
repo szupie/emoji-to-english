@@ -1,5 +1,6 @@
-/* Hide emojis if attribute is set */
-[data-emoji-to-english-hide-emojis="1"] .emoji-to-english-translatable:not([data-emoji-to-english-has-translation="0"]) {
+/* Hide emojis if attribute is set and no title text */
+[data-emoji-to-english-hide-emojis="1"] .emoji-to-english-translatable:not([data-emoji-to-english-has-translation="0"]):not([title]),
+[data-emoji-to-english-hide-emojis="1"] .emoji-to-english-translatable:not([data-emoji-to-english-has-translation="0"])[title=""] {
 	display: none;
 }
 
