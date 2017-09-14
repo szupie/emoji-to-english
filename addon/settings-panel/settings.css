@@ -1,6 +1,7 @@
 body {
 	font-family: sans-serif;
 	display: flex;
+	flex-direction: row;
 	flex-wrap: wrap;
 }
 
@@ -11,8 +12,8 @@ h2 {
 }
 
 #settings {
-	margin-right: 4em;
-	flex: 1 0 auto;
+	margin-right: 2rem;
+	flex: 0 1 auto;
 }
 #settings form {
 	display: table;
@@ -35,14 +36,14 @@ h2 {
 	margin-top: 1em;
 }
 
-#settings input[value='custom'] ~ input {
-	width: 3em;
+#settings input[name^='wrapper'] {
+	width: 5em;
 }
 
 #preview {
 	display: flex;
 	flex-direction: column;
-	flex: 1 1 15em;
+	flex: 3 1 15em;
 	background-color: #fff;
 	border: 1px dotted rgba(0, 0, 0, 0.25);
 	padding: 1em;
@@ -67,6 +68,7 @@ h2 {
 	margin-top: 2em;
 	padding: 0.5em;
 	margin-left: -0.5em;
+	flex: 0 0 100%;
 	font-style: italic;
 	color: rgba(0, 0, 0, 0);
 	transition: color 500ms ease-in-out, background-color 500ms ease-in-out;
