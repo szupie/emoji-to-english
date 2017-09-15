@@ -23,14 +23,25 @@ function isEmojiComponent(node) {
 	);
 }
 
+function hasTextContent(node) {
+	return (
+		node &&
+		[...node.childNodes].some(childNode => {
+			const isTextNode = childNode.nodeType === Node.TEXT_NODE;
+			const isNonEmpty = childNode.textContent.trim();
+			return isTextNode && isNonEmpty;
+		})
+	);
+}
+
 document.addEventListener('mouseover', function(e) {
-	if (isEmojiComponent(e.target) && !menuShown) {
+	if ((isEmojiComponent(e.target) || hasTextContent(e.target)) && !menuShown) {
 		showMenu(true);
 	}
 });
 
 document.addEventListener('mouseout', function(e) {
-	if (isEmojiComponent(e.target) && menuShown) {
+	if ((isEmojiComponent(e.target) || hasTextContent(e.target)) && menuShown) {
 		showMenu(false);
 	}
 });
