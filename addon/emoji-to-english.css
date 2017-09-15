@@ -8,3 +8,8 @@
 .emoji-to-english-translatable[title]:not([title=""]) + .emoji-to-english-translation {
 	display: none;
 }
+
+.emoji-to-english-translation {
+	font-size: 0.75em;
+	font-style: italic;
+}

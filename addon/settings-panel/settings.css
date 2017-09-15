@@ -24,16 +24,15 @@ h2 {
 }
 #settings form > section > * {
 	display: table-cell;
-	padding: 0.75em 0;
+	padding: 0.25em 0;
 }
 #settings form > section > :first-child {
 	padding-right: 2em;
 }
 #settings section.options > label {
 	display: block;
-}
-#settings section.options > label + label {
-	margin-top: 1em;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
 }
 
 #settings input[name^='wrapper'] {
