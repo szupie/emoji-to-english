@@ -21,7 +21,8 @@ const settingsManager = (function(){
 		get,
 		set,
 		setAll,
-		clean
+		clean,
+		getDefaults,
 	}
 
 	function init() {
