@@ -10,6 +10,6 @@
 }
 
 .emoji-to-english-translation {
-	font-size: 0.75em;
+	font-size: max(min(24px, 0.75em), 8px);
 	font-style: italic;
 }
