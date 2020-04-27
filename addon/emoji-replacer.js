@@ -2,7 +2,8 @@ const emojiReplacer = (function(){
 
 	const classNames = {
 		'emoji': 'emoji-to-english-translatable',
-		'translation': 'emoji-to-english-translation'
+		'translation': 'emoji-to-english-translation',
+		'helper': 'emoji-to-english-duplicate-helper'
 	};
 
 	const Keys = SettingsConstants.Keys;
@@ -171,7 +172,7 @@ const emojiReplacer = (function(){
 		return false;
 	}
 
-	function getReplacedEmojiNode(emoji, translation) {
+	function getReplacedEmojiNode(emoji) {
 		const emojiNode = document.createElement('span');
 		emojiNode.classList.add(classNames['emoji']);
 		emojiNode.appendChild(document.createTextNode(emoji));
@@ -238,7 +239,7 @@ const emojiReplacer = (function(){
 
 					const nonemojiNode = document.createTextNode(nonemoji);
 
-					const emojiNode = getReplacedEmojiNode(emoji, translation);
+					const emojiNode = getReplacedEmojiNode(emoji);
 					if (!translation || !translation.length) {
 						emojiNode.setAttribute(
 							'data-emoji-to-english-has-translation',
@@ -252,15 +253,28 @@ const emojiReplacer = (function(){
 						document.createTextNode(translation)
 					);
 
-					parentNode.insertBefore(nonemojiNode, originalNode);
-					parentNode.insertBefore(emojiNode, originalNode);
+					let insertPosition = originalNode;
+
+					if (parentNode.classList.contains(classNames['helper'])) {
+						insertPosition = parentNode;
+						emojiNode.classList.add(classNames['helper']);
+					}
+
+					insertPosition.parentNode.insertBefore(
+						nonemojiNode, insertPosition
+					);
+					insertPosition.parentNode.insertBefore(
+						emojiNode, insertPosition
+					);
 
 					// show translation on hover
 					if (settings[Keys.DISPLAY_MODE] === 
 						Values.DisplayModes.TOOLTIP) {
 						emojiNode.setAttribute('title', translation);
 					} else {
-						parentNode.insertBefore(translationNode, originalNode);
+						insertPosition.parentNode.insertBefore(
+							translationNode, insertPosition
+						);
 					}
 
 				}

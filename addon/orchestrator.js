@@ -19,6 +19,13 @@ const orchestrator = (function(){
 		await emojiReplacer.init();
 		await emojiStyler.init();
 		domManipulator.start();
+		twitterDecoder.waitForTweets().then(roots=>{
+			if (roots) {
+				roots.forEach(root=>{
+					domManipulator.start(root, false);
+				})
+			}
+		});
 	}
 
 }());

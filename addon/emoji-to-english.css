@@ -13,3 +13,7 @@
 	font-size: max(min(24px, 0.75em), 8px);
 	font-style: italic;
 }
+
+.emoji-to-english-duplicate-helper {
+	display: none;
+}

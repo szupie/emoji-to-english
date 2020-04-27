@@ -1,14 +1,18 @@
 const domManipulator = (function(){
 
+	const classNames = emojiReplacer.classNames;
+
 	return {
 		start
 	}
 
-	function start() {
-		clean();
+	function start(root=document.body, cleanUp=true) {
+		if (cleanUp) {
+			clean(root);
+		}
 
 		const treeWalker = document.createTreeWalker(
-			document.body, NodeFilter.SHOW_TEXT // filter to only text nodes
+			root, NodeFilter.SHOW_TEXT // filter to only text nodes
 		);
 
 		// perform replacement on each text node in document
@@ -18,17 +22,17 @@ const domManipulator = (function(){
 		}
 	}
 
-	function clean() {
-		// remove annotations added by extension
-		let translationNodes = 
-			document.getElementsByClassName('emoji-to-english-translation');
-		while (translationNodes[0]) {
-			translationNodes[0].parentNode.removeChild(translationNodes[0]);
+	function clean(root=document.body) {
+		// remove extra nodes added by extension
+		let extraNodes = root.querySelectorAll(
+			`.${classNames['translation']}, .${classNames['helper']}`
+		);
+		for (const extraNode of extraNodes) {
+			extraNode.parentNode.removeChild(extraNode);
 		}
 
 		// restore emojis
-		let emojiNodes = 
-			document.querySelectorAll('.emoji-to-english-translatable');
+		let emojiNodes = root.querySelectorAll(`.${classNames['emoji']}`);
 		for (const emojiNode of emojiNodes) {
 			emojiNode.parentNode.insertBefore(
 				document.createTextNode(emojiNode.textContent),
