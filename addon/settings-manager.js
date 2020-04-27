@@ -74,7 +74,7 @@ const settingsManager = (function(){
 		defaults[Keys.DISPLAY_MODE] = Values.DisplayModes.INLINE;
 		defaults[Keys.WRAPPER_START] = '[:';
 		defaults[Keys.WRAPPER_END] = ':]';
-		defaults[Keys.IGNORE_LIST] = ['Activities', 'Objects', 'Symbols', 'Flags'];
+		defaults[Keys.IGNORE_LIST] = ['Symbols'];
 		defaults[Keys.SHOW_EMOJI] = true;
 
 		return defaults;
