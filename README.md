@@ -17,7 +17,7 @@ This add-on is available for
 #### Building Unicode names dictionary
 The dictionary for the Unicode names is not included in this repository, but can easily be built using the latest Unicode data:
 
-1. Download desired version of `emoji-test.txt` from http://www.unicode.org/Public/emoji/
+1. Download latest version of `emoji-test.txt` from https://www.unicode.org/Public/emoji/latest/emoji-test.txt
 2. Move `emoji-test.txt` to the same directory as `namesExtractor.py`
 3. Run `python3 namesExtractor.py` in a terminal
 
@@ -26,9 +26,11 @@ The dictionary for the Unicode names is not included in this repository, but can
 #### Building localisation files
 Translations can also be generated from CLDR annotations:
 
-1. Download annotations file(s) for desired language(s) from http://unicode.org/repos/cldr/tags/latest/common/annotations/
+1. Download annotations file(s) for desired language(s) from https://github.com/unicode-org/cldr/tree/master/common/annotations
 2. Create a directory containing only the annotation file(s)
 3. Run `python3 localisationExtractor.py PATH_TO_DIRECTORY` in a terminal
+
+Localisation files will be created in `./addon/_locales`
 
 
 #### WebExtensions

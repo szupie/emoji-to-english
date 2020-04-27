@@ -1,5 +1,5 @@
 # Localisation files can be found at:
-# http://unicode.org/repos/cldr/tags/latest/common/annotations/
+# https://github.com/unicode-org/cldr/tree/master/common/annotations
 
 import argparse
 import xml.etree.ElementTree as ET
@@ -50,5 +50,6 @@ for filename in os.listdir(srcDir):
 	with open(filePath, 'w') as f:
 		jsonString = json.dumps(formattedDictionary, ensure_ascii=False, sort_keys=True)
 		f.write(jsonString)
+		print("Written to", filePath)
 
 print('{} annotation files parsed: {}'.format(len(langs), ', '.join(langs)))
