@@ -1,10 +1,11 @@
-import os, json
+import os, json, re
 
 def getFile(path):
 	dir = os.path.dirname(__file__)
 	return os.path.join(dir, path)
 
-# emoji-test.txt is available at http://www.unicode.org/Public/emoji/
+# emoji-test.txt is available at 
+# https://www.unicode.org/Public/emoji/latest/emoji-test.txt
 emojiFile = getFile('emoji-test.txt')
 dictionary = {}
 count = 0
@@ -18,6 +19,8 @@ with open(emojiFile) as f:
 		if line.strip() and line[0] is not '#':
 			comment = line.split('#', 1)[1].strip()
 			[emoji, name] = comment.split(" ", 1)
+			# strip version info on newer emoji-test.txts
+			name = re.compile('E[0-9.]+ (.*)').match(name).groups()[0]
 			dictionary[currentGroup][currentSubgroup][emoji] = name
 			count += 1
 		elif line.find(groupPrefix) is 0:
