@@ -6,7 +6,7 @@ const contextMenuHandler = (function(){
 		{
 			id: 'context-parent',
 			title: 'Emoji to English',
-			contexts: ['link', 'page'],
+			contexts: ['link', 'page', 'image'],
 		}, {
 			id: 'context-reload',
 			parentId: 'context-parent',

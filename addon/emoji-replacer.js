@@ -19,7 +19,9 @@ const emojiReplacer = (function(){
 		settings,
 		set,
 		classNames,
-		translateTextNode: buildTranslatedNodes
+		translateTextNode: buildTranslatedNodes,
+		createTranslationNode,
+		wrapTranslation
 	}
 
 	function init() {
@@ -115,12 +117,15 @@ const emojiReplacer = (function(){
 
 	function getTranslationForEmoji(emoji) {
 		const name = getLocalisedNameForEmoji(emoji);
-		
+		return wrapTranslation(name);
+	}
+
+	function wrapTranslation(translation) {
 		const userWrappers = [
 			settings[Keys.WRAPPER_START], 
 			settings[Keys.WRAPPER_END]
 		];
-		return `${userWrappers[0]}${name}${userWrappers[1]}`;
+		return `${userWrappers[0]}${translation}${userWrappers[1]}`;
 	}
 
 	// returns list of translated emojis and list of surrounding texts
@@ -172,12 +177,20 @@ const emojiReplacer = (function(){
 		return false;
 	}
 
-	function getReplacedEmojiNode(emoji) {
+	function createEmojiNode(emoji) {
 		const emojiNode = document.createElement('span');
 		emojiNode.classList.add(classNames['emoji']);
-		emojiNode.appendChild(document.createTextNode(emoji));
+		emojiNode.textContent = emoji;
 
 		return emojiNode;
+	}
+
+	function createTranslationNode(translation) {
+		const translationNode = document.createElement('samp');
+		translationNode.classList.add(classNames['translation']);
+		translationNode.textContent = translation;
+
+		return translationNode;
 	}
 
 	function buildTranslatedNodes(originalNode) {
@@ -239,7 +252,7 @@ const emojiReplacer = (function(){
 
 					const nonemojiNode = document.createTextNode(nonemoji);
 
-					const emojiNode = getReplacedEmojiNode(emoji);
+					const emojiNode = createEmojiNode(emoji);
 					if (!translation || !translation.length) {
 						emojiNode.setAttribute(
 							'data-emoji-to-english-has-translation',
@@ -247,24 +260,13 @@ const emojiReplacer = (function(){
 						)
 					}
 
-					const translationNode = document.createElement('samp');
-					translationNode.classList.add(classNames['translation']);
-					translationNode.appendChild(
-						document.createTextNode(translation)
+					const translationNode = createTranslationNode(translation);
+
+					originalNode.parentNode.insertBefore(
+						nonemojiNode, originalNode
 					);
-
-					let insertPosition = originalNode;
-
-					if (parentNode.classList.contains(classNames['helper'])) {
-						insertPosition = parentNode;
-						emojiNode.classList.add(classNames['helper']);
-					}
-
-					insertPosition.parentNode.insertBefore(
-						nonemojiNode, insertPosition
-					);
-					insertPosition.parentNode.insertBefore(
-						emojiNode, insertPosition
+					originalNode.parentNode.insertBefore(
+						emojiNode, originalNode
 					);
 
 					// show translation on hover
@@ -272,8 +274,8 @@ const emojiReplacer = (function(){
 						Values.DisplayModes.TOOLTIP) {
 						emojiNode.setAttribute('title', translation);
 					} else {
-						insertPosition.parentNode.insertBefore(
-							translationNode, insertPosition
+						originalNode.parentNode.insertBefore(
+							translationNode, originalNode
 						);
 					}
 

@@ -1,64 +1,79 @@
 const twitterDecoder = (function(){
 
+	const twMutationSelector = '.r-rthrr5, .r-150rngu, .r-1obr2lp';
+
+	const twEmojiSelectors = {
+		'r-h9hxbl': 'aria-label',
+		'Emoji--forText': 'alt'
+	}
+
 	return {
-		waitForTweets
+		waitForTweets,
+		mightContainEmoji
+	}
+
+	function mightContainEmoji(node) {
+		return node.matches('twitter-widget') || 
+			node.closest(`.${Object.keys(twEmojiSelectors)[0]}`) != null;
+	}
+
+	function runTranslation() {
+		domManipulator.clean();
+		extractTwitterEmojis();
+		domManipulator.start(document.body, false);
 	}
 
 	function waitForTweets() {
-		return new Promise(resolve => {
-			if (document.domain === "twitter.com") {
+		if (document.domain === "twitter.com") {
 
-				if (findTweetNode()) {
-					resolve(true);
-				} else {
-					// Wait for Twitter interface to load
-					new MutationObserver((mutationsList, observer) => {
-						for (let mutation of mutationsList) {
-							if (findTweetNode()) {
-								extractTwitterEmojis();
-								resolve([document.body]);
-
-								observer.disconnect();
-								break;
-							}
-						}
-					}).observe(document.body, { childList: true });
-				}
-
-			} else {
-				const embedNodes = 
-					document.querySelectorAll('.twitter-tweet');
-				if (embedNodes) {
-					// Wait for embedded tweets to load
-					new MutationObserver((mutationsList, observer) => {
-						for (let mutation of mutationsList) {
-							if (mutation.previousSibling.classList.contains(
-								'twitter-tweet-rendered'
-							)) {
-								const roots = [];
-								const replacedTweetNodes = 
-									document.querySelectorAll('twitter-widget');
-
-								for (const node of replacedTweetNodes) {
-									shadow = node.shadowRoot;
-									roots.push(shadow);
-
-									// make changes in shadow DOM scope
-									extractTwitterEmojis(shadow);
-									shadow.appendChild(buildStyleLink());
-								};
-								resolve(roots);
-
-								observer.disconnect();
-								break;
-							}
-						}
-					}).observe(embedNodes[0].parentNode, {childList: true});
-				} else {
-					resolve(false);
-				}
+			if (findTweetNode()) {
+				runTranslation();
 			}
-		});
+			// Wait for Twitter interface to load
+			new MutationObserver((mutationsList, observer) => {
+				for (let mutation of mutationsList) {
+					if (mutation.addedNodes.length) {
+						setTimeout(()=>{
+							if (findTweetNode()) {
+								runTranslation();
+							}
+						}, 500);
+						break;
+					}
+				}
+			}).observe(
+				document.querySelector(twMutationSelector), 
+				{ childList: true }
+			);
+
+		} else {
+			const embedNodes = document.querySelector('.twitter-tweet');
+			if (embedNodes) {
+				// Wait for embedded tweets to load
+				new MutationObserver((mutationsList, observer) => {
+					for (let mutation of mutationsList) {
+						if (mutation.previousSibling.classList.contains(
+							'twitter-tweet-rendered')) {
+							const roots = [];
+							const replacedTweetNodes = 
+								document.querySelectorAll('twitter-widget');
+
+							for (const node of replacedTweetNodes) {
+								shadow = node.shadowRoot;
+
+								// make changes in shadow DOM scope
+								extractTwitterEmojis(shadow);
+								shadow.appendChild(buildStyleLink());
+								domManipulator.start(shadow, false);
+							};
+
+							observer.disconnect();
+							break;
+						}
+					}
+				}).observe(embedNodes.parentNode, {childList: true});
+			}
+		}
 	}
 
 	function findTweetNode() {
@@ -75,42 +90,45 @@ const twitterDecoder = (function(){
 	}
 
 	function extractTwitterEmojis(root=document) {
-		const classAttrPair = {
-			'.r-h9hxbl': 'aria-label',
-			'.Emoji--forText': 'alt'
-		}
-		for (identifier in classAttrPair) {
-			const attr = classAttrPair[identifier];
-			const twEmojiNodes = root.querySelectorAll(
-				`${identifier}[${attr}]`
-			);
+		const plainTextRE = /\w+/; // matches alphanumeric
+
+		for (className in twEmojiSelectors) {
+			const attr = twEmojiSelectors[className];
+			const twEmojiSelector = `.${className}[${attr}]`;
+			const twEmojiNodes = root.querySelectorAll(twEmojiSelector);
+			let emojiChain = '';
 			for (const twEmojiNode of twEmojiNodes) {
 				let insertPosition = twEmojiNode;
-				if (!root.host) { // is not twitter widget shadowroot
+				if (!root.host) { // is not twitter embed widget shadowroot
 					insertPosition = twEmojiNode.parentNode;
 				}
 
-				let emoji = twEmojiNode.getAttribute(attr);
+				let attrText = twEmojiNode.getAttribute(attr);
 
-				// combine consecutive emojis for legibility
-				prevNode = insertPosition.previousSibling;
-				try {
-					if (prevNode.classList.contains(
-						emojiReplacer.classNames['helper']
-					)) {
-						emoji = prevNode.textContent + emoji;
-						prevNode.parentNode.removeChild(prevNode);
-					}
-				} catch(e) {
+				const hasPlainText = plainTextRE.test(attrText);
+				if (hasPlainText) {
+					attrText = emojiReplacer.wrapTranslation(attrText);
 				}
 
-				// create hidden node with extracted emoji characters
-				const newEmojiNode = document.createElement('span'); 
-				newEmojiNode.classList.add(emojiReplacer.classNames['helper']);
-				newEmojiNode.appendChild(document.createTextNode(emoji));
+				attrText = emojiChain + attrText;
+
+				// combine consecutive emojis for legibility
+				const nextNode = insertPosition.nextSibling;
+				if (nextNode && nextNode.querySelector &&
+					(nextNode.matches(twEmojiSelector) ||
+					nextNode.querySelector(twEmojiSelector))
+				) {
+					emojiChain = attrText;
+					continue;
+				} else {
+					emojiChain = '';
+				}
+
+				const newNode = emojiReplacer.createTranslationNode(attrText);
+				newNode.classList.add(emojiReplacer.classNames['helper']);
 
 				insertPosition.parentNode.insertBefore(
-					newEmojiNode, insertPosition.nextSibling
+					newNode, insertPosition.nextSibling
 				);
 			}
 		}

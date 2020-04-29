@@ -3,7 +3,8 @@ const domManipulator = (function(){
 	const classNames = emojiReplacer.classNames;
 
 	return {
-		start
+		start,
+		clean
 	}
 
 	function start(root=document.body, cleanUp=true) {

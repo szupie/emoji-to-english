@@ -6,7 +6,8 @@ const orchestrator = (function(){
 	const settings = {};
 
 	return {
-		init
+		init,
+		scan
 	}
 
 
@@ -18,14 +19,16 @@ const orchestrator = (function(){
 		});
 		await emojiReplacer.init();
 		await emojiStyler.init();
+
+		scan();
+	}
+
+	async function scan() {
+		if (emojiReplacer.settings === undefined) {
+			await emojiReplacer.init();
+		}
 		domManipulator.start();
-		twitterDecoder.waitForTweets().then(roots=>{
-			if (roots) {
-				roots.forEach(root=>{
-					domManipulator.start(root, false);
-				})
-			}
-		});
+		twitterDecoder.waitForTweets();
 	}
 
 }());

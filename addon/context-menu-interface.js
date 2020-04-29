@@ -17,9 +17,12 @@ function showMenu(shouldShow) {
 function isEmojiComponent(node) {
 	return (
 		node && 
-		emojiClasses.some(className => {
-			return node.classList.contains(className);
-		})
+		(
+			twitterDecoder.mightContainEmoji(node) ||
+			emojiClasses.some(className => {
+				return node.classList.contains(className);
+			})
+		)
 	);
 }
 
@@ -54,7 +57,7 @@ function handleMessage(message) {
 		domManipulator.start();
 	} else if (message['type'] === 'context-menu-action') {
 		if (message['content'] === 'reload') {
-			domManipulator.start();
+			orchestrator.scan();
 		}
 	}
 }
