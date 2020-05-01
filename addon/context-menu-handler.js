@@ -132,4 +132,11 @@ const contextMenuHandler = (function(){
 
 }());
 
+browser.browserAction.onClicked.addListener((tab) => {
+	browser.tabs.sendMessage(tab.id, {
+		'type': 'context-menu-action',
+		'content': 'reload'
+	});
+});
+
 contextMenuHandler.init();

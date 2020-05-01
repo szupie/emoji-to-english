@@ -7,6 +7,8 @@ const twitterDecoder = (function(){
 		'Emoji--forText': 'alt'
 	}
 
+	const twDomains = ["twitter.com", "mobile.twitter.com"];
+
 	return {
 		waitForTweets,
 		mightContainEmoji
@@ -24,8 +26,7 @@ const twitterDecoder = (function(){
 	}
 
 	function waitForTweets() {
-		if (document.domain === "twitter.com") {
-
+		if (twDomains.some(domain => document.domain === domain)) {
 			if (findTweetNode()) {
 				runTranslation();
 			}
