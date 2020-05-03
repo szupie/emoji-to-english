@@ -12,12 +12,9 @@
 .emoji-to-english-translation {
 	font-size: max(min(24px, 0.75em), 8px);
 	font-style: italic;
+	opacity: 0.8;
 }
 
 .emoji-to-english-duplicate-helper .emoji-to-english-translatable {
 	display: none;
-}
-
-.emoji-to-english-duplicate-helper .emoji-to-english-translation {
-	font-size: inherit;
 }
