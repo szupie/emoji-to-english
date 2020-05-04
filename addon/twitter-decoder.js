@@ -45,9 +45,13 @@ const twitterDecoder = (function(){
 		// translate newly loaded content
 		const contentNodes = addedNode.querySelectorAll(contentSelector);
 		for (const contentNode of contentNodes) {
-			// only translate lower tweets to prevent jumping due to text reflow
-			if (contentNode.getBoundingClientRect().bottom > 0) {
-				runTranslation(contentNode, false);
+			// skip already-translated nodes
+			if (!contentNode.querySelector(`.${emojiClassNames['helper']}`)) {
+				// only process tweets lower on page to prevent scroll jumping
+				// due to text reflow from translations
+				if (contentNode.getBoundingClientRect().bottom > 0) {
+					runTranslation(contentNode, false);
+				}
 			}
 		}
 	}

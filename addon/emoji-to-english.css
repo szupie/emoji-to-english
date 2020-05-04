@@ -9,12 +9,21 @@
 	display: none;
 }
 
-.emoji-to-english-translation {
-	font-size: max(min(24px, 0.75em), 8px);
+:not(.emoji-to-english-translation) > .emoji-to-english-translation {
+	font-size: clamp(8px, 0.75em, 16px);
 	font-style: italic;
-	opacity: 0.8;
+	
+	background-color: rgba(230, 230, 230, 0.25);
+	border: 1px solid rgba(200, 200, 200, 0.25);
 }
 
-.emoji-to-english-duplicate-helper .emoji-to-english-translatable {
+@supports not (font-size: clamp(1em, 1em, 1em)) {
+	:not(.emoji-to-english-translation) > .emoji-to-english-translation {
+		font-size: 0.75em;
+	}
+}
+
+.emoji-to-english-duplicate-helper .emoji-to-english-translatable,
+.emoji-to-english-translation:empty {
 	display: none;
 }
