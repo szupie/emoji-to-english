@@ -10,9 +10,10 @@
 				"constants.js",
 				"settings-interface.js",
 				"styler.js",
-				"names-dict.js", 
-				"emoji-replacer.js", 
-				"twitter-decoder.js", 
+				"names-dict.js",
+				"emoji-replacer.js",
+				"twitter-decoder.js",
+				"youtube-decoder.js",
 				"dom-manipulator.js",
 				"orchestrator.js",
 				"context-menu-interface.js"

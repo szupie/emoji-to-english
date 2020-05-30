@@ -8,39 +8,58 @@ const domManipulator = (function(){
 	}
 
 	function start(root=document.body, cleanUp=true) {
-		if (cleanUp) {
-			clean(root);
-		}
+		// make sure root is a node
+		if (root && root.nodeType) {
+			if (cleanUp) {
+				clean(root);
+			}
 
-		const treeWalker = document.createTreeWalker(
-			root, NodeFilter.SHOW_TEXT // filter to only text nodes
-		);
+			const treeWalker = document.createTreeWalker(
+				root, NodeFilter.SHOW_TEXT // filter to only text nodes
+			);
 
-		// perform replacement on each text node in document
-		while (treeWalker.nextNode()) {
-			const originalNode = treeWalker.currentNode;
-			emojiReplacer.translateTextNode(originalNode);
+			// perform replacement on each text node in document
+			while (treeWalker.nextNode()) {
+				const originalNode = treeWalker.currentNode;
+				emojiReplacer.translateTextNode(originalNode);
+			}
 		}
 	}
 
 	function clean(root=document.body) {
+		const normalizeClass = "emoji-to-english-normalize-temp";
+
 		// remove extra nodes added by extension
 		let extraNodes = root.querySelectorAll(
 			`.${classNames['translation']}, .${classNames['helper']}`
 		);
 		for (const extraNode of extraNodes) {
-			extraNode.parentNode.removeChild(extraNode);
+			const origParent = extraNode.parentNode;
+			if (origParent) {
+				origParent.classList.add(normalizeClass);
+				origParent.removeChild(extraNode);
+			}
 		}
 
 		// restore emojis
 		let emojiNodes = root.querySelectorAll(`.${classNames['emoji']}`);
 		for (const emojiNode of emojiNodes) {
-			emojiNode.parentNode.insertBefore(
+			const parentNode = emojiNode.parentNode;
+			parentNode.classList.add(normalizeClass);
+			parentNode.insertBefore(
 				document.createTextNode(emojiNode.textContent),
 				emojiNode
 			);
-			emojiNode.parentNode.removeChild(emojiNode);
+			parentNode.removeChild(emojiNode);
 		}
+
+		// rejoin textNodes that were split by translated emojis
+		const normalizeNodes = root.querySelectorAll(`.${normalizeClass}`);
+		for (const normalizeNode of normalizeNodes) {
+			normalizeNode.normalize();
+			normalizeNode.classList.remove(normalizeClass);
+		}
+
 	}
 
 }());

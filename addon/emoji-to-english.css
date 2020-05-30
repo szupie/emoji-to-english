@@ -13,7 +13,7 @@
 	font-size: clamp(8px, 0.75em, 16px);
 	font-style: italic;
 	
-	background-color: rgba(230, 230, 230, 0.25);
+	background-color: rgba(230, 230, 230, 0.15);
 	border: 1px solid rgba(200, 200, 200, 0.25);
 }
 

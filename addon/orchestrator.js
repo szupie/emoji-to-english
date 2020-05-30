@@ -20,15 +20,18 @@ const orchestrator = (function(){
 		await emojiReplacer.init();
 		await emojiStyler.init();
 
-		scan();
+		scan(false);
 	}
 
-	async function scan() {
+	async function scan(cleanUp=true) {
 		if (emojiReplacer.settings === undefined) {
 			await emojiReplacer.init();
 		}
-		domManipulator.start();
+		if (!youtubeDecoder.isYoutube()) {
+			domManipulator.start(cleanUp);
+		}
 		twitterDecoder.waitForTweets();
+		youtubeDecoder.watchPageChanges();
 	}
 
 }());

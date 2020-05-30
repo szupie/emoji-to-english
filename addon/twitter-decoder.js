@@ -82,7 +82,7 @@ const twitterDecoder = (function(){
 			}
 			// Continuously observe for lazy-loaded content on twitter.com
 			new MutationObserver((mutationsList, observer) => {
-				for (let mutation of mutationsList) {
+				for (const mutation of mutationsList) {
 					const addedNode = mutation.addedNodes[0];
 					if (addedNode) {
 						handleAddedNodeOnTwitter(addedNode);
@@ -98,7 +98,7 @@ const twitterDecoder = (function(){
 			if (embedNode) {
 				// Wait for embedded tweets to load
 				new MutationObserver((mutationsList, observer) => {
-					for (let mutation of mutationsList) {
+					for (const mutation of mutationsList) {
 						if (handleEmbedMutations(mutation, observer)) {
 							break;
 						}
