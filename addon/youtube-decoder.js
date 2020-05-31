@@ -3,17 +3,20 @@ const youtubeDecoder = (function(){
 	const ytDomain = '.youtube.com';
 
 	const mainDescSelector = '#description.ytd-video-secondary-info-renderer';
-	const commentSectionSelector = 'ytd-comments#comments';
-	const commentSelector = 'ytd-comment-renderer, ytd-comment-thread-renderer';
+	const commentSectionSelector = 
+		'ytd-comments#comments, ytm-comment-section-renderer';
+	const commentSelector = 'ytd-comment-renderer, ytm-comment-renderer';
 
 	const resultsSelector = 'ytd-search #contents.ytd-item-section-renderer';
 	const resultsItemSelector = 'ytd-video-renderer';
 	const descSelector = 'yt-formatted-string#description-text';
 
+	const mobileDescParentSelector = 'ytm-slim-video-metadata-renderer';
+
 	const emojiClassNames = emojiReplacer.classNames;
 
 	let pageManagerFound = false;
-	let watchingComments = false;
+	let watchedCommentsNode;
 
 	const debouncedTranslatePage = debounce(translatePage, 200);
 
@@ -45,12 +48,13 @@ const youtubeDecoder = (function(){
 		}
 
 		// clear all comments on video pages
-		const commentsParent = document.querySelector(
-			`${commentSectionSelector} #contents`
-		);
-		if (commentsParent) {
-			while (commentsParent.firstChild) {
-				commentsParent.removeChild(commentsParent.firstChild);
+		const commentsRoot = document.querySelector(commentSectionSelector);
+		if (commentsRoot) {
+			const commentsParent = commentsRoot.querySelector('#contents');
+			if (commentsParent) {
+				while (commentsParent.firstChild) {
+					commentsParent.removeChild(commentsParent.firstChild);
+				}
 			}
 		}
 
@@ -66,6 +70,8 @@ const youtubeDecoder = (function(){
 
 	function watchPageChanges() {
 		if (isYoutube()) {
+			debouncedTranslatePage();
+
 			window.addEventListener("yt-navigate-start", clean);
 
 			document.body.addEventListener(
@@ -75,12 +81,17 @@ const youtubeDecoder = (function(){
 				"yt-navigate-finish", debouncedTranslatePage
 			);
 
-			debouncedTranslatePage();
+			// mobile
+			document.documentElement.addEventListener(
+				"video-data-change", debouncedTranslatePage
+			);
 		}
 	}
 
 	function translatePage() {
-		if (document.querySelector('ytd-watch-flexy:not([hidden])')) {
+		if (document.querySelector(
+			'ytd-watch-flexy:not([hidden]), ytm-watch'
+		)) {
 			translateVideo();
 		} else if (document.querySelector('ytd-search:not([hidden])')) {
 			translateSearch();
@@ -93,6 +104,9 @@ const youtubeDecoder = (function(){
 		const commentsNode = document.querySelector(commentSectionSelector);
 		runTranslation(commentsNode);
 		watchComments(commentsNode);
+
+		// on mobile, descriptions dynamically loaded after opening accordion
+		watchDescMobile();
 	}
 
 	function translateSearch() {
@@ -104,22 +118,23 @@ const youtubeDecoder = (function(){
 	}
 
 	function watchComments(commentsNode) {
-		if (watchingComments) return;
-		new MutationObserver((mutationsList, observer) => {
-			for (const mutation of mutationsList) {
-				if (mutation.addedNodes.length > 0) {
-					for (const node of mutation.addedNodes) {
-						if (node.matches && node.matches(commentSelector)) {
-							runTranslation(node);
+		if (watchedCommentsNode !== commentsNode) {
+			new MutationObserver((mutationsList, observer) => {
+				for (const mutation of mutationsList) {
+					if (mutation.addedNodes.length > 0) {
+						for (const node of mutation.addedNodes) {
+							if (node.matches && node.matches(commentSelector)) {
+								runTranslation(node);
+							}
 						}
 					}
 				}
-			}
-		}).observe(
-			commentsNode, 
-			{ childList: true, subtree:true }
-		);
-		watchingComments = true;
+			}).observe(
+				commentsNode, 
+				{ childList: true, subtree:true }
+			);
+			watchedCommentsNode = commentsNode;
+		}
 	}
 
 	function watchSearchResults(searchNode) {
@@ -167,6 +182,26 @@ const youtubeDecoder = (function(){
 					{ childList: true }
 				);
 			}
+		}
+	}
+
+	function watchDescMobile() {
+		const descContainer = document.querySelector(mobileDescParentSelector);
+		if (descContainer) {
+			new MutationObserver((mutationsList, observer) => {
+				for (const mutation of mutationsList) {
+					if (mutation.addedNodes.length > 0) {
+						for (const node of mutation.addedNodes) {
+							if (node.matches('.user-text')) {
+								runTranslation(node);
+							}
+						}
+					}
+				}
+			}).observe(
+				descContainer, 
+				{ childList: true }
+			);
 		}
 	}
 
