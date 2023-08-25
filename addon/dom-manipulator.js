@@ -7,10 +7,10 @@ const domManipulator = (function(){
 		clean
 	}
 
-	function start(root=document.body, cleanUp=true) {
+	function start(root=document.body, shouldCleanUp=true) {
 		// make sure root is a node
 		if (root && root.nodeType) {
-			if (cleanUp) {
+			if (shouldCleanUp) {
 				clean(root);
 			}
 

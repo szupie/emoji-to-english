@@ -23,15 +23,12 @@ const orchestrator = (function(){
 		scan(false);
 	}
 
-	async function scan(cleanUp=true) {
+	async function scan(shouldCleanUp=true) {
 		if (emojiReplacer.settings === undefined) {
 			await emojiReplacer.init();
 		}
-		if (!youtubeDecoder.isYoutube()) {
-			domManipulator.start(cleanUp);
-		}
+		domManipulator.start(undefined, shouldCleanUp);
 		twitterDecoder.waitForTweets();
-		youtubeDecoder.watchPageChanges();
 	}
 
 }());
