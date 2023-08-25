@@ -16,17 +16,17 @@ with open(emojiFile) as f:
 	currentSubgroup = ""
 	subgroupPrefix = "# subgroup: "
 	for line in f:
-		if line.strip() and line[0] is not '#':
+		if line.strip() and line[0] != '#':
 			comment = line.split('#', 1)[1].strip()
 			[emoji, name] = comment.split(" ", 1)
 			# strip version info on newer emoji-test.txts
 			name = re.compile('E[0-9.]+ (.*)').match(name).groups()[0]
 			dictionary[currentGroup][currentSubgroup][emoji] = name
 			count += 1
-		elif line.find(groupPrefix) is 0:
+		elif line.find(groupPrefix) == 0:
 			currentGroup = line[len(groupPrefix):].strip()
 			dictionary[currentGroup] = {}
-		elif line.find(subgroupPrefix) is 0:
+		elif line.find(subgroupPrefix) == 0:
 			currentSubgroup = line[len(subgroupPrefix):].strip()
 			dictionary[currentGroup][currentSubgroup] = {}
 
