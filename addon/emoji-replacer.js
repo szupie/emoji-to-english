@@ -128,10 +128,18 @@ const emojiReplacer = (function(){
 		return `${userWrappers[0]}${translation}${userWrappers[1]}`;
 	}
 
+	// returns true if string contains character within code range 
+	// that may possibly contain emojis
+	function quickEmojiCheck(string) {
+		return new RegExp('[\u{00A9}\u{00AE}\u{2030}-\u{1FAFF}]', 'u')
+			.test(string);
+	}
+
 	// returns list of translated emojis and list of surrounding texts
 	// if no emojis are found, returns false
 	function getReplacedParts(original) {
-		if (pattern.test(original)) {
+		pattern.lastIndex = 0;
+		if (quickEmojiCheck(original) && pattern.test(original)) {
 			const emojis = original.match(pattern);
 			const nonemojis = original.split(pattern);
 
