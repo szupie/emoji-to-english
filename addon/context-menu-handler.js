@@ -12,36 +12,31 @@ const contextMenuHandler = (function(){
 			parentId: 'context-parent',
 			title: 'Rescan for emojis',
 		}, {
-			type: 'separator',
+			id: 'context-mode',
 			parentId: 'context-parent',
+			title: 'Translation display',
 		}, {
-		// These should be radio items, but unlike checkboxes, radios do not work
+		// These should be radio items, but for some reason radios do not work
 		// if they are removed while the context menu is visible
 			id: 'context-translation-inline',
 			type: 'checkbox', 
-			parentId: 'context-parent',
-			title: 'Show Translations',
+			parentId: 'context-mode',
+			title: 'Show after emoji',
 		}, {
 			id: 'context-translation-hover',
 			type: 'checkbox',
-			parentId: 'context-parent',
-			title: 'Show Translations on Hover',
+			parentId: 'context-mode',
+			title: 'Show on hover',
 		}, {
 			id: 'context-translation-hide',
 			type: 'checkbox',
-			parentId: 'context-parent',
-			title: 'Hide Translations',
-		}, {
-			type: 'separator',
-			parentId: 'context-parent',
+			parentId: 'context-mode',
+			title: 'Hide translations',
 		}, {
 			id: 'context-emoji-shown',
 			type: 'checkbox',
 			parentId: 'context-parent',
-			title: 'Show Emoji',
-		}, {
-			type: 'separator',
-			parentId: 'context-parent',
+			title: 'Show emojis',
 		}, {
 			id: 'context-settings',
 			parentId: 'context-parent',
